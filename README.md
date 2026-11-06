@@ -65,7 +65,7 @@ GitHub上でのPublic化はWebアプリのホスティングとは別で、本�
 **現時点では公開完了ではありません。** GitHub Pagesの設定が未有効であり、自動デプロイの最初の試行は「Get Pages site failed」で停止しました。
 
 - [Pagesの設定](https://github.com/yumotof01-dotcom/ECO-MIRROR-3/settings/pages) → **Build and deployment → Source → GitHub Actions** を選ぶ。
-- 設定後にActionsの **Deploy ECO MIRROR 3.0 to GitHub Pages** を作業ブランチから実行する。
+- 設定後にActionsの **Deploy ECO MIRROR 3.0 to GitHub Pages** の失敗した実行を **Re-run all jobs** で再実行するか、このチャットで設定完了を知らせる。
 - デプロイ成功後のサイトURL：**https://yumotof01-dotcom.github.io/ECO-MIRROR-3/**
 - 直接リンク：`#/explore`（探索）・`#/evidence`（根拠）。GitHub PagesではHashRouterを用い、URLを再読込しても404にならない。
 - 初期公開は研究データが未接続の**第1工程UIのみ**。正式な数理計算や生物移動の結果を示さない。
