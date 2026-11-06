@@ -82,8 +82,15 @@ for(const [i,c] of CONDITIONS.entries()) {
   });
 }
 // 120: 6 regions x 5 query kinds x 4 parameter sets, with a reproducible seed.
+const roundtripKeys=new Set<string>();
 for(let r=0;r<6;r++)for(const kind of ['condition','comparison','curve','intervention','candidates'] as const)for(let variant=0;variant<4;variant++) {
-  const a=next(440),b=(a+1+next(439))%440,site=next(16),otherSite=(site+1+next(15))%16;
+  let a=next(440);
+  const b=(a+1+next(439))%440,site=next(16),otherSite=(site+1+next(15))%16;
+  // Curves omit lossPercent: different full settings can otherwise resolve to the same query.
+  const effectiveKey=()=>JSON.stringify([r,kind,...(kind==='curve'?[Math.floor(a/11)]:kind==='condition'?[a]:
+    kind==='comparison'?[a,b]:kind==='intervention'?[a,site]:[a,site,otherSite])]);
+  while(roundtripKeys.has(effectiveKey()))a=(a+(kind==='curve'?11:1))%440;
+  roundtripKeys.add(effectiveKey());
   add('roundtrip',`${REGIONS[r]}-${kind}-${variant}`,{region:REGIONS[r],kind,a,b,site,otherSite},async()=>{
     const study=studies[r]!,condition=CONDITIONS[a]!,conditionId=condition.scenarioId;
     const query:ResearchQuery=kind==='condition'?{kind,conditionId}:kind==='comparison'?{kind,beforeId:conditionId,afterId:CONDITIONS[b]!.scenarioId}:
@@ -245,7 +252,7 @@ const badFiles:[string,()=>string][]=[
 ];
 for(const [name,value] of badFiles)add('file_bounds',name,{variant:name},async()=>{await expect(parseResearchSnapshot(value())).rejects.toThrow();});
 
-if(cases.length!==1000||new Set(cases.map(c=>c.id)).size!==1000)throw Error('Expected exactly 1000 unique cases');
+if(cases.length!==1000||new Set(cases.map(c=>c.id)).size!==1000||roundtripKeys.size!==120)throw Error('Expected exactly 1000 unique cases and 120 distinct round-trip queries');
 type Observation={id:string;category:string;status:'passed'|'failed';milliseconds:number;error?:string};
 const observed:Observation[]=[];
 describe('1000 distinct reproducible research cases',()=>{
