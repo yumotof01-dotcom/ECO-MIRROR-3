@@ -5,12 +5,13 @@ import { resolve } from 'node:path';
 const root = resolve(import.meta.dirname, '..');
 async function read(relative) {return readFile(resolve(root,relative),'utf8');}
 
-test('this package clearly says design-only, no connected science', async()=>{
+test('README distinguishes imported research CLI from unconnected browser science', async()=>{
   const readme=await read('README.md');
   assert.match(readme,/設計基盤/);
-  assert.match(readme,/まだ移植していません/);
+  assert.match(readme,/旧研究エンジン原本移植と実データ一致検証に成功/);
+  assert.match(readme,/2021年の研究データはまだWeb画面へ接続・静的配信していません/);
   assert.match(readme,/yumotof01-dotcom\/ECO-MIRROR-3/);
-  assert.match(readme,/研究エンジンの移植や公開Webアプリの完成ではありません/);
+  assert.match(readme,/研究CLIが動くことは、ブラウザで実データを操作できることや、生物学的な妥当性の証明を意味しません/);
 });
 
 test('research data contracts cannot claim confirmed animal movements', async()=>{

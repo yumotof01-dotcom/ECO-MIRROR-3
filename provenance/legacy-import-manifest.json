@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "eco-mirror-3-legacy-landscape-import-v1",
+  "sourceRepository": "yumotof01-dotcom/ECO-MIRROR",
+  "sourceCommitSha": "9a7fa63bc83f350c80ddf775124cd3cbeb6c112e",
+  "sourceResearchPR": "https://github.com/yumotof01-dotcom/ECO-MIRROR/pull/20",
+  "destinationRepository": "yumotof01-dotcom/ECO-MIRROR-3",
+  "copyMode": "byte-for-byte_without_edits",
+  "sourceDataYear": 2021,
+  "scientificScope": "structural_land_cover_proxy_not_species_movements",
+  "sourceDataLicense": "ESA WorldCover 2021 v200: CC BY 4.0 (data attribution separate from code)",
+  "filenames": [
+    {
+      "path": "scripts/landscape/audit_bridges.py",
+      "gitBlobSha1": "c82c25d4cbd7267c512217d7b2ff4991622e9dd1",
+      "sizeBytes": 14245
+    },
+    {
+      "path": "scripts/landscape/audit_real_results.py",
+      "gitBlobSha1": "de5c02f596cf27804078a2d7c1cecc71f34135db",
+      "sizeBytes": 7818
+    },
+    {
+      "path": "scripts/landscape/ingest_worldcover.py",
+      "gitBlobSha1": "a6c2abb1ea904f9811a7d82be7f92dc29251f27d",
+      "sizeBytes": 9107
+    },
+    {
+      "path": "scripts/landscape/run-bridges.mjs",
+      "gitBlobSha1": "701f17bf1b2ea2f8d3801cf6c35f15c574751981",
+      "sizeBytes": 3846
+    },
+    {
+      "path": "scripts/landscape/run-worldcover.mjs",
+      "gitBlobSha1": "12733b761abd487d1996996f49500e15e1556483",
+      "sizeBytes": 2738
+    },
+    {
+      "path": "scripts/landscape/stress-adversarial.mjs",
+      "gitBlobSha1": "d37862d9b69d217e1a888f067702472abbcaa968",
+      "sizeBytes": 6417
+    },
+    {
+      "path": "src/features/landscape/bridges/engine.test.ts",
+      "gitBlobSha1": "b9b94656ea892f327a0d505294eeac4e0b0e95a6",
+      "sizeBytes": 4645
+    },
+    {
+      "path": "src/features/landscape/bridges/engine.ts",
+      "gitBlobSha1": "dbbaeb5a132bba6ad9154ed5b19723837d730477",
+      "sizeBytes": 16741
+    },
+    {
+      "path": "src/features/landscape/core/index.ts",
+      "gitBlobSha1": "d8a456eb4f9ea30afcc8cbacb2bbfeb42952c440",
+      "sizeBytes": 186
+    },
+    {
+      "path": "src/features/landscape/core/landscape.test.ts",
+      "gitBlobSha1": "4c1f9b1bcd133f4538abdfe6c4dba6dc9710d3fa",
+      "sizeBytes": 4272
+    },
+    {
+      "path": "src/features/landscape/core/landscape.ts",
+      "gitBlobSha1": "02d6e003015564b74295a6c6ef604795b71aaf6e",
+      "sizeBytes": 5147
+    },
+    {
+      "path": "src/features/landscape/core/types.ts",
+      "gitBlobSha1": "427191b3c3edf54747887ca3f32a1771c55754e5",
+      "sizeBytes": 1552
+    },
+    {
+      "path": "src/features/landscape/data/window.ts",
+      "gitBlobSha1": "bf1340fa770f2ecf9e6529e508a14a7d1f2e7ff6",
+      "sizeBytes": 3174
+    },
+    {
+      "path": "src/features/landscape/scenarios/engine.test.ts",
+      "gitBlobSha1": "a8672a9b37753ceba51dfb2c6ea6769fdb12fcaf",
+      "sizeBytes": 3748
+    },
+    {
+      "path": "src/features/landscape/scenarios/engine.ts",
+      "gitBlobSha1": "ebe5eed9b0528759c0cb617007ff7f56565dfba1",
+      "sizeBytes": 6451
+    },
+    {
+      "path": "src/features/landscape/thresholds/detect.ts",
+      "gitBlobSha1": "ee170cbec6a097e4161f33f53eb397759420c6da",
+      "sizeBytes": 5259
+    }
+  ]
+}

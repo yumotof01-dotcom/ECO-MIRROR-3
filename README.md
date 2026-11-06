@@ -2,7 +2,7 @@
 
 > 自然のつながりを、見る。試す。確かめる。
 
-**状態：新アプリ第1工程のReact/TypeScript/Viteアプリ骨格（2026-11-06）。第0工程の設計基盤v0.1も維持。実装済みの研究エンジンや実データは、この新しいフォルダーにはまだ移植していません。**
+**状態：第2工程の旧研究エンジン原本移植と実データ一致検証に成功（2026-11-06）。新アプリ第1工程のReact UIと第0工程設計基盤も保持。2021年の研究データはまだWeb画面へ接続・静的配信していません。**
 
 ECO MIRROR 3.0 は、公開土地被覆データと再現可能な数理計算をもとに、緑地の構造的なつながりを調べ、仮想的な環境変化や植生追加の効果を比較する独立したWebアプリです。生成AIを完成アプリの実行に組み込まず、追加の有料APIを必須としません。
 
@@ -41,9 +41,9 @@ npm run dev
 - `/evidence`：出典と科学的な注意事項
 - 未知のURL：明示的な404ページ
 
-**第1工程の計算は未接続です。** アプリ側の地図は装飾的な概念図で、正式な土地被覆・PC・生物の移動を表示しません。
-第2工程で固定済みの旧研究エンジンを移植し、数値照合してから研究機能を有効化します。
-第1工程ができたことは研究エンジンの移植や公開Webアプリの完成ではありません。
+**Web画面の研究計算は未接続です。** アプリ側の地図は装飾的な概念図で、正式な土地被覆・PC・生物の移動を表示しません。
+第2工程の**研究CLIは移植済みで、旧版と全件一致を検証済み**です。公開UIへの接続には、監査済みデータの分割配信・検証・端末性能確認が必要です。
+研究CLIが動くことは、ブラウザで実データを操作できることや、生物学的な妥当性の証明を意味しません。
 
 ```bash
 npm run design:check
@@ -52,13 +52,13 @@ npm run build
 npm run preview
 ```
 
-`npm test`は従来の設計テストに加えて、Reactの画面切替・地域の未接続表示・キーボード操作・根拠表示を確認します。
+`npm test`は設計5件に加え、React UI5件と数理モデル22件のVitestを実行します（2026-11-06のCIで合計32件PASS）。
 `npm run build`はTypeScriptの検査とViteの静的バンドル出力です。
-GitHub上でのPublic化はWebアプリのホスティングとは別で、本番公開はまだ行っていません。
+GitHubリポジトリのPublic化とは別に、Cloudflare Pagesで**第1工程のUIは公開済み**です。2021年の研究計算データの画面配信はまだ行っていません。
 
 `FILE_MANIFEST_SHA256.json`は**第0工程の最初の設計ファイルアップロード時点の記録**で、現在のブランチすべてのファイルを列挙するライブマニフェストではありません。
 
-## Webサイトの公開：Cloudflare Pagesに接続済み（ビルド設定の修正が必要）
+## Webサイトの公開：Cloudflare Pages稼働中（UI第1工程・計算は未接続）
 
 公開対象は新アプリ第1工程のReact UI。**実際の生態学的データ・計算はまだ未接続**。
 
@@ -69,9 +69,18 @@ GitHub Pagesはソース設定保存後も実行前にジョブが失敗し、�
 - **Build command：`npm run build` / Build output：`dist`**。
 - **Node.js：`24.22.1`**（`.node-version`ファイルで固定）。
 - `GITHUB_PAGES_DEPLOY`環境変数は設定しない。
-- **現状は白画面で未公開相当。** 外部検証では通常サイトがHTTP 404、ブランチのプレビューはソースの未変換`index.html`を返していた（`/src/main.tsx`への直接参照）。Cloudflareで`npm run build`、出力先`dist`、Production branchの設定を修正してから再デプロイする。
+- **https://eco-mirror-3.pages.dev/**：2026-11-06にHTTP 200と本番JavaScript・CSSの正常な配信を外部検証済み。過去の白画面はCloudflareのビルド設定が未設定だったことが原因で、現在は解消。Web画面には第2工程の2021年研究結果をまだ表示しません。
 
-iPadでの具体的な操作方法は[Cloudflare Pages公開手順](docs/16-cloudflare-pages-release.md)。旧版の研究コードは変更していません。
+公開先の構成と当時の障害原因は[Cloudflare Pages公開手順](docs/16-cloudflare-pages-release.md)に記録。旧版の研究コードは変更していません。
+
+## 第2工程｜独立研究CLIの移植と検証
+
+- [元ソース固定コミットと16ファイルのバイト照合](provenance/legacy-import-manifest.json)
+- [移植構造と科学的な適用範囲](docs/17-phase2-landscape-engine.md)
+- [実行済みの全結果：3,080条件＋42,240比較の全バイト一致](docs/18-phase2-validation-results.md)
+- GitHub Actionsの[研究移植監査・6都市＋大型地図](https://github.com/yumotof01-dotcom/ECO-MIRROR-3/actions/runs/42188754928)
+
+この研究CLIは`src/features/landscape`および`scripts/landscape`にあり、Web画面とは独立しています。元CSV 3,882件は移植していません。
 
 ## 見られるもの
 
@@ -91,11 +100,11 @@ python -m http.server 8000
 
 続いて `http://localhost:8000/design/prototype.html` を開いてください。Pythonがなければ `design/prototype.html` をブラウザで直接開いても構いません。
 
-**重要：ここでのテスト成功は新アプリの研究エンジンや実地データの動作確認を意味しません。**
+**重要：静的デザイン用プロトタイプを開けることは、実データを扱う研究機能が公開ブラウザで動作することの証明ではありません。**
 
 ## リポジトリの作成
 
-新しい独立リポジトリは [yumotof01-dotcom/ECO-MIRROR-3](https://github.com/yumotof01-dotcom/ECO-MIRROR-3) に作成済みです。コンテスト提出のため公開リポジトリへ変更する方針ですが、実際の公開状態は GitHub のリポジトリ設定で確認してください。アップロードするのは本設計資産であり、研究エンジンの移植や公開Webアプリの完成ではありません。手順は [GitHubセットアップ](docs/11-github-setup.md)。
+新しい独立リポジトリ [yumotof01-dotcom/ECO-MIRROR-3](https://github.com/yumotof01-dotcom/ECO-MIRROR-3) はコンテスト向けにPublicで運用中。第0工程の設計、第1工程の公開UI、第2工程の独立研究CLIの移植と一致検証まで完了。**現段階で公開Webアプリに研究結果を接続したという意味ではありません。** 初期構築履歴は [GitHubセットアップ](docs/11-github-setup.md)。
 
 ## 出典
 

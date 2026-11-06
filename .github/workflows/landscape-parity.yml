@@ -1,0 +1,137 @@
+name: ECO MIRROR 3 frozen landscape parity audit
+
+on:
+  pull_request:
+    paths:
+      - "src/features/landscape/**"
+      - "scripts/landscape/**"
+      - "provenance/**"
+      - ".github/workflows/landscape-parity.yml"
+      - "docs/17-phase2-landscape-engine.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  imported-file-integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: yumotof01-dotcom/ECO-MIRROR
+          ref: 9a7fa63bc83f350c80ddf775124cd3cbeb6c112e
+          path: .legacy-source
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Verify all 16 imported Git blobs and raw SHA256 values
+        run: node scripts/landscape/verify-frozen-import.mjs .legacy-source
+
+  real-region-parity:
+    name: 2021 verified ${{ matrix.site }} 40k grid
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        site: [shinjuku, osaka, nagoya, fukuoka, sapporo, odaiba]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: yumotof01-dotcom/ECO-MIRROR
+          ref: 9a7fa63bc83f350c80ddf775124cd3cbeb6c112e
+          path: .legacy-source
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install pinned public geospatial dependencies
+        run: python -m pip install rasterio==1.4.3 pyproj==3.7.2 numpy==2.2.6
+      - name: Ingest the SAME ESA WorldCover 2021 crop
+        run: python scripts/landscape/ingest_worldcover.py --site "${{ matrix.site }}" --out /tmp/crop.json
+      - name: New engine all 440 and independent numerical audit
+        run: |
+          node --experimental-strip-types scripts/landscape/run-worldcover.mjs /tmp/crop.json /tmp/new-440.json
+          python scripts/landscape/audit_real_results.py /tmp/crop.json /tmp/new-440.json
+      - name: Original frozen engine must produce byte-identical 440 scenarios
+        run: |
+          node --experimental-strip-types .legacy-source/scripts/landscape/run-worldcover.mjs /tmp/crop.json /tmp/old-440.json
+          cmp /tmp/new-440.json /tmp/old-440.json
+          echo "REAL_2021_BASELINE_PARITY=PASS SITE=${{ matrix.site }}"
+          sha256sum /tmp/new-440.json /tmp/old-440.json
+      - name: Keep original Shinjuku 2km historical reference SHA256
+        if: matrix.site == 'shinjuku'
+        run: 'echo "fd2306dd2a7c8f43cef061c352ed7510635e8b1fdf9299103ef6acb351696e29  /tmp/new-440.json" | sha256sum --check'
+      - name: New engine 16 times 440 and independent intervention audit
+        run: |
+          node --experimental-strip-types scripts/landscape/run-bridges.mjs /tmp/crop.json /tmp/new-440.json /tmp/new-bridges.json
+          python scripts/landscape/audit_bridges.py /tmp/crop.json /tmp/new-440.json /tmp/new-bridges.json
+      - name: Frozen engine must produce identical 7040 intervention results
+        run: |
+          node --experimental-strip-types .legacy-source/scripts/landscape/run-bridges.mjs /tmp/crop.json /tmp/old-440.json /tmp/old-bridges.json
+          cmp /tmp/new-bridges.json /tmp/old-bridges.json
+          echo "REAL_2021_BRIDGE_PARITY=PASS SITE=${{ matrix.site }} COMPARISONS=7040"
+          sha256sum /tmp/new-bridges.json /tmp/old-bridges.json
+      - name: Archive reproducible ESA 2021 crop and complete result reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eco3-frozen-parity-${{ matrix.site }}
+          path: |
+            /tmp/crop.json
+            /tmp/new-440.json
+            /tmp/new-bridges.json
+          retention-days: 14
+          if-no-files-found: warn
+
+  four-km-parity:
+    name: Tokyo 160k cells, 440 exact matches
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: yumotof01-dotcom/ECO-MIRROR
+          ref: 9a7fa63bc83f350c80ddf775124cd3cbeb6c112e
+          path: .legacy-source
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install pinned public raster tools
+        run: python -m pip install rasterio==1.4.3 pyproj==3.7.2 numpy==2.2.6
+      - name: Reingest real 4km WorldCover 2021 crop
+        run: python scripts/landscape/ingest_worldcover.py --site shinjuku --size-cells 400 --out /tmp/large-crop.json
+      - name: New engine 440 conditions and independent audit
+        run: |
+          node --experimental-strip-types scripts/landscape/run-worldcover.mjs /tmp/large-crop.json /tmp/new-large-440.json
+          python scripts/landscape/audit_real_results.py /tmp/large-crop.json /tmp/new-large-440.json
+      - name: Frozen engine and historical SHA256 must match
+        run: |
+          node --experimental-strip-types .legacy-source/scripts/landscape/run-worldcover.mjs /tmp/large-crop.json /tmp/old-large-440.json
+          cmp /tmp/new-large-440.json /tmp/old-large-440.json
+          echo "15a79c2ae986e2f15a70769f6c2e69e975721d8856ea1d64301669c5f292b5f7  /tmp/new-large-440.json" | sha256sum --check
+          echo "REAL_2021_LARGE_PARITY=PASS SCENARIOS=440"
+      - name: Archive official derived crop and all baseline scenarios
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eco3-frozen-parity-tokyo-large
+          path: |
+            /tmp/large-crop.json
+            /tmp/new-large-440.json
+          retention-days: 14
+          if-no-files-found: warn
