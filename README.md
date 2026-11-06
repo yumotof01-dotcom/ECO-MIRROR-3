@@ -69,7 +69,7 @@ GitHub Pagesはソース設定保存後も実行前にジョブが失敗し、�
 - **Build command：`npm run build` / Build output：`dist`**。
 - **Node.js：`24.22.1`**（`.node-version`ファイルで固定）。
 - `GITHUB_PAGES_DEPLOY`環境変数は設定しない。
-- Cloudflare側で初回デプロイが成功した後に表示される`*.pages.dev`のURLが公開アプリへの正式な入口。**URLはまだ未発行・未検証**。
+- **現状は白画面で未公開相当。** 外部検証では通常サイトがHTTP 404、ブランチのプレビューはソースの未変換`index.html`を返していた（`/src/main.tsx`への直接参照）。Cloudflareで`npm run build`、出力先`dist`、Production branchの設定を修正してから再デプロイする。
 
 iPadでの具体的な操作方法は[Cloudflare Pages公開手順](docs/16-cloudflare-pages-release.md)。旧版の研究コードは変更していません。
 
