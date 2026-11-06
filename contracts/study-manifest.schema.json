@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/eco-mirror-3/study-manifest.schema.json",
+  "title": "ECO MIRROR 3.0 — proposed study manifest, NOT migrated legacy output",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "studyId", "source", "space", "calculation", "validation", "caveats"],
+  "properties": {
+    "schemaVersion": {"const": "eco-mirror-3/study-manifest-v0.1"},
+    "studyId": {"type": "string", "minLength": 1},
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["product", "publisher", "observationYear", "license", "attribution", "derivedClassSha256", "derivedMaskSha256", "sourceTileEntirelyHashed"],
+      "properties": {
+        "product": {"const": "ESA WorldCover 2021 v200"},
+        "publisher": {"const": "ESA WorldCover consortium"},
+        "observationYear": {"const": 2021},
+        "license": {"const": "CC BY 4.0"},
+        "doi": {"type": "string", "pattern": "10\\.5281/zenodo\\.7254221"},
+        "sourceUrl": {"type": "string", "minLength": 10},
+        "attribution": {"type": "string", "minLength": 30},
+        "derivedClassSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "derivedMaskSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "sourceTileEntirelyHashed": {"const": false}
+      }
+    },
+    "space": {
+      "type": "object", "additionalProperties": false,
+      "required": ["crs", "width", "height", "cellSizeMetres", "externalMovementBufferValidated"],
+      "properties": {
+        "crs": {"type": "string", "pattern": "^EPSG:[0-9]+$"},
+        "width": {"type": "integer", "minimum": 1},
+        "height": {"type": "integer", "minimum": 1},
+        "cellSizeMetres": {"type": "number", "exclusiveMinimum": 0},
+        "externalMovementBufferValidated": {"const": false}
+      }
+    },
+    "calculation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["modelId", "legacySourceCommit", "scenarioDefinitionId", "scenarioCount"],
+      "properties": {
+        "modelId": {"type": "string", "minLength": 1},
+        "legacySourceCommit": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
+        "scenarioDefinitionId": {"const": "lambda10-loss11-neighborhood2-pattern2"},
+        "scenarioCount": {"const": 440}
+      }
+    },
+    "validation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "modelInterpretation", "fieldEcologicalValidation"],
+      "properties": {
+        "status": {"enum": ["not_loaded", "loading", "structural_only", "not_estimable", "error"]},
+        "modelInterpretation": {"const": "hypothetical_structural_landscape_connectivity"},
+        "fieldEcologicalValidation": {"const": "not_performed"}
+      }
+    },
+    "caveats": {"type": "array", "items": {"type": "string", "minLength": 3}, "minItems": 1}
+  }
+}
