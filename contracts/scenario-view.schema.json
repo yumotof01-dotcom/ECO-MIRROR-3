@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/eco-mirror-3/scenario-view.schema.json",
+  "title": "Proposed UI scenario view (not existing calculation result)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "studyId", "scenarioId", "mode", "status", "scientificScope", "modelId", "warnings"],
+  "properties": {
+    "schemaVersion": {"const": "eco-mirror-3/scenario-view-v0.1"},
+    "studyId": {"type": "string", "minLength": 1},
+    "scenarioId": {"type": "string", "minLength": 1},
+    "mode": {"enum": ["connectivity", "scenario", "threshold", "bridge"]},
+    "status": {"enum": ["not_loaded", "loading", "structural_only", "not_estimable", "error"]},
+    "scientificScope": {"const": "hypothetical_structural_landscape_connectivity"},
+    "modelId": {"type": "string", "minLength": 1},
+    "value": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "bridge": {
+      "type": ["object", "null"], "additionalProperties": false,
+      "required": ["addedAreaM2", "matchedConditions", "mergerConditions", "newIslandConditions"],
+      "properties": {
+        "addedAreaM2": {"const": 400},
+        "matchedConditions": {"type": "integer", "minimum": 0, "maximum": 440},
+        "mergerConditions": {"type": "integer", "minimum": 0, "maximum": 440},
+        "newIslandConditions": {"type": "integer", "minimum": 0, "maximum": 440}
+      }
+    },
+    "warnings": {"type": "array", "items": {"type": "string", "minLength": 3}, "minItems": 1}
+  }
+}
