@@ -91,13 +91,6 @@ function Home() {
           </div>
           <p className="small-explainer home-disclaimer">現在は第1工程。研究計算エンジンと実地地図はまだ接続されていません。</p>
         </div>
-        <div className="home-art" aria-hidden="true">
-          <div className="home-orbit orbit-one" /><div className="home-orbit orbit-two" /><div className="home-orbit orbit-three" />
-          <span className="home-art-center">◈</span>
-          <span className="orbital-tag orbital-a">LAND COVER</span>
-          <span className="orbital-tag orbital-b">STRUCTURAL PC</span>
-          <span className="orbital-tag orbital-c">EVIDENCE</span>
-        </div>
       </section>
       <section className="home-overview" aria-label="4つの研究モード">
         {MODES.map(item => (

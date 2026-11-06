@@ -136,3 +136,58 @@ body { overflow-x: hidden; }
   .study-audit-button { width: 100%; }
 }
 @media (max-width: 350px) { .study-audit-metrics { grid-template-columns: 1fr; } }
+
+/* The landscape illustrations are decorative. Research figures keep their own layers. */
+.home-hero {
+  background: #26463b url('./glass/entrance.webp') center / cover no-repeat;
+}
+.home-copy {
+  margin: clamp(16px, 3vw, 50px);
+  padding: clamp(22px, 3vw, 48px);
+  border-radius: 18px;
+  background-color: rgb(10 32 27 / 91%);
+}
+.study-band {
+  background: #eef2e9 url('./glass/observation.webp') center / cover no-repeat;
+  color: #183c30;
+}
+.study-band .overline, .region-picker label, .source-status span:last-child {
+  color: #365747;
+}
+.source-status .yellow-dot { background-color: #795219; }
+.home-actions .action-link, .panel-link, .region-picker select, .overview-card {
+  color: #183c30;
+  background-color: #e7efe5;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  border-color: #749181;
+}
+.home-actions .action-link, .panel-link {
+  background-image: url('./glass/button.webp');
+}
+.region-picker select {
+  background-image: url('./glass/field.webp');
+  color-scheme: light;
+}
+.overview-card {
+  background-image: url('./glass/panel.webp');
+}
+.overview-card .overline, .overview-card .overview-arrow { color: #315643; }
+.home-actions .action-link:hover, .panel-link:hover, .overview-card:hover {
+  background-color: #d0e5d7;
+  color: #102e22;
+}
+.identity-mark {
+  background: #dceade url('./glass/round.webp') center / contain no-repeat;
+  color: #183c30;
+  border: 0;
+  border-radius: 50%;
+  box-shadow: none;
+}
+@media (max-width: 700px) {
+  .home-hero { padding-top: clamp(90px, 29vw, 180px); }
+}
+@media (forced-colors: active) {
+  .home-copy, .study-band, .identity-mark, .overview-card,
+  .home-actions .action-link, .panel-link, .region-picker select { background-image: none; }
+}
