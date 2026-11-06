@@ -1,0 +1,27 @@
+name: Verify Cloudflare public phase-3 study preview
+
+on:
+  push:
+    branches:
+      - feat/phase3-static-study-packages-2026-11
+    paths:
+      - "scripts/landscape/probe-deployed-studies.mjs"
+      - ".github/workflows/phase3-live-preview.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-static-asset-integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Verify real HTTPS 200, compiled React, and all 115 original content hashes
+        env:
+          STUDY_PREVIEW_URL: https://feat-phase3-static-study-pac.eco-mirror-3.pages.dev/
+        run: node scripts/landscape/probe-deployed-studies.mjs
