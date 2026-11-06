@@ -15,7 +15,7 @@
 1. GitHubへログインして **https://github.com/yumotof01-dotcom/ECO-MIRROR-3/settings/pages** を開く。
 2. 「**Build and deployment**」→「**Source**」を確認。
 3. **GitHub Actions**を選ぶ（`Deploy from a branch` ではない）。
-4. ワークフローが実行済みで未公開の場合は、作業ブランチ `feat/phase1-react-app-shell-2026-11` に新しいコミットを作成して再起動するか、Actionsの「Deploy ECO MIRROR 3.0 to GitHub Pages」で `Run workflow` → 対象作業ブランチを選んで実行する。
+4. GitHub Actionsの [Deploy ECO MIRROR 3.0 to GitHub Pages](https://github.com/yumotof01-dotcom/ECO-MIRROR-3/actions/workflows/deploy-pages.yml) を開き、失敗した直近の実行を選択して **Re-run all jobs** で再実行する（または、このチャットで「Pagesを有効化した」と伝え、新しいコミットで再実行する）。非デフォルトブランチのワークフローは `Run workflow` ボタンが表示されない場合がある。
 5. Actionsの `build-and-deploy` ジョブが成功した後に、上記の公開URLをSafariで開いて、ホーム→探索→根拠を試す。
 
 **重要：** 本書作成時点ではGitHub Pagesのサイトは未作成。GitHub Actionsで `Configure GitHub Pages` ステップに `Get Pages site failed ... repository has Pages enabled and configured to build using GitHub Actions` というエラーが返っており、ユーザーの設定を待っている。設定前に公開済みとは宣言しない。
