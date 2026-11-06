@@ -54,7 +54,7 @@ npm run preview
 
 `npm test`は設計5件に加え、React UI5件と数理モデル22件のVitestを実行します（2026-11-06のCIで合計32件PASS）。
 `npm run build`はTypeScriptの検査とViteの静的バンドル出力です。
-GitHub上でのPublic化はWebアプリのホスティングとは別で、本番公開はまだ行っていません。
+GitHubリポジトリのPublic化とは別に、Cloudflare Pagesで**第1工程のUIは公開済み**です。2021年の研究計算データの画面配信はまだ行っていません。
 
 `FILE_MANIFEST_SHA256.json`は**第0工程の最初の設計ファイルアップロード時点の記録**で、現在のブランチすべてのファイルを列挙するライブマニフェストではありません。
 
@@ -100,11 +100,11 @@ python -m http.server 8000
 
 続いて `http://localhost:8000/design/prototype.html` を開いてください。Pythonがなければ `design/prototype.html` をブラウザで直接開いても構いません。
 
-**重要：ここでのテスト成功は新アプリの研究エンジンや実地データの動作確認を意味しません。**
+**重要：静的デザイン用プロトタイプを開けることは、実データを扱う研究機能が公開ブラウザで動作することの証明ではありません。**
 
 ## リポジトリの作成
 
-新しい独立リポジトリは [yumotof01-dotcom/ECO-MIRROR-3](https://github.com/yumotof01-dotcom/ECO-MIRROR-3) に作成済みです。コンテスト提出のため公開リポジトリへ変更する方針ですが、実際の公開状態は GitHub のリポジトリ設定で確認してください。アップロードするのは本設計資産であり、研究エンジンの移植や公開Webアプリの完成ではありません。手順は [GitHubセットアップ](docs/11-github-setup.md)。
+新しい独立リポジトリ [yumotof01-dotcom/ECO-MIRROR-3](https://github.com/yumotof01-dotcom/ECO-MIRROR-3) はコンテスト向けにPublicで運用中。第0工程の設計、第1工程の公開UI、第2工程の独立研究CLIの移植と一致検証まで完了。**現段階で公開Webアプリに研究結果を接続したという意味ではありません。** 初期構築履歴は [GitHubセットアップ](docs/11-github-setup.md)。
 
 ## 出典
 
