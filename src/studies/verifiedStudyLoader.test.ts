@@ -3,7 +3,7 @@ import { createHash, webcrypto } from "node:crypto";
 import { enumerateConditions } from "../features/landscape/scenarios/engine.ts";
 import {
   loadStudyIndex, loadVerifiedStudyRegion, loadVerifiedInterventionSite,
-  StudyIntegrityError, type StudyIndex
+  type StudyIndex
 } from "./verifiedStudyLoader.ts";
 
 const names=["shinjuku","osaka","nagoya","fukuoka","sapporo","odaiba"] as const;
@@ -104,9 +104,6 @@ function fixture() {
   }) as typeof fetch;
   return {manifest,files,crop,baseline,bridges,siteResults,fetcher};
 }
-function errorCode(reason:StudyIntegrityError["reason"]) {
-  return (e:unknown)=>e instanceof StudyIntegrityError && e.reason===reason;
-}
 afterEach(()=>vi.unstubAllGlobals());
 
 describe("Phase-3 verified lazy study data access (synthetic fixtures only)",()=>{
@@ -129,7 +126,7 @@ describe("Phase-3 verified lazy study data access (synthetic fixtures only)",()=
     const f=fixture(),url=root+"regions/shinjuku/baseline.json";
     f.files.set(url,f.files.get(url)!.replace('"pc":0.1','"pc":0.9'));
     await expect(loadVerifiedStudyRegion("shinjuku",
-      {baseUrl:"https://example.invalid/",fetcher:f.fetcher})).rejects.toSatisfy(errorCode("HASH_MISMATCH"));
+      {baseUrl:"https://example.invalid/",fetcher:f.fetcher})).rejects.toMatchObject({reason:"HASH_MISMATCH"});
   });
 
   it("rejects missing site shards and never silently substitutes another region",async()=>{
@@ -138,9 +135,9 @@ describe("Phase-3 verified lazy study data access (synthetic fixtures only)",()=
     const region=await loadVerifiedStudyRegion("shinjuku",options);
     f.files.delete(root+`regions/shinjuku/sites/${f.siteResults.siteId}.json`);
     await expect(loadVerifiedInterventionSite(region,f.siteResults.siteId,options))
-      .rejects.toSatisfy(errorCode("MISSING_RESOURCE"));
+      .rejects.toMatchObject({reason:"MISSING_RESOURCE"});
     await expect(loadVerifiedInterventionSite(region,"nonexistent",options))
-      .rejects.toSatisfy(errorCode("INVALID_DATA"));
+      .rejects.toMatchObject({reason:"INVALID_DATA"});
   });
 
   it("refuses source-mismatched masks even when manifest file hash is updated",async()=>{
@@ -154,7 +151,7 @@ describe("Phase-3 verified lazy study data access (synthetic fixtures only)",()=
     meta.sha256=sha(changed);meta.bytes=new TextEncoder().encode(changed).length;
     f.files.set(root+"manifest.json",JSON.stringify(f.manifest)+"\n");
     await expect(loadVerifiedStudyRegion("shinjuku",
-      {baseUrl:"https://example.invalid/",fetcher:f.fetcher})).rejects.toSatisfy(errorCode("INVALID_DATA"));
+      {baseUrl:"https://example.invalid/",fetcher:f.fetcher})).rejects.toMatchObject({reason:"INVALID_DATA"});
   });
 
   it("rejects forged year, research commit or incomplete manifest",async()=>{
@@ -166,7 +163,7 @@ describe("Phase-3 verified lazy study data access (synthetic fixtures only)",()=
     ]) {
       f.files.set(url,JSON.stringify(mutation(f.manifest))+"\n");
       await expect(loadStudyIndex({baseUrl:"https://example.invalid/",fetcher:f.fetcher}))
-        .rejects.toSatisfy(errorCode("INVALID_MANIFEST"));
+        .rejects.toMatchObject({reason:"INVALID_MANIFEST"});
     }
   });
 
@@ -174,6 +171,6 @@ describe("Phase-3 verified lazy study data access (synthetic fixtures only)",()=
     vi.stubGlobal("crypto",{subtle:null});
     const f=fixture();
     await expect(loadVerifiedStudyRegion("shinjuku",
-      {baseUrl:"https://example.invalid/",fetcher:f.fetcher})).rejects.toSatisfy(errorCode("CRYPTO_UNAVAILABLE"));
+      {baseUrl:"https://example.invalid/",fetcher:f.fetcher})).rejects.toMatchObject({reason:"CRYPTO_UNAVAILABLE"});
   });
 });
