@@ -1,10 +1,8 @@
 name: Deploy ECO MIRROR 3.0 to GitHub Pages
 
+# GitHub Pages release is parked while Cloudflare Pages is the deployment target.
+# Retain the manual workflow for possible future recovery, without failing on every push.
 on:
-  push:
-    branches:
-      - main
-      - feat/phase1-react-app-shell-2026-11
   workflow_dispatch:
 
 permissions:
