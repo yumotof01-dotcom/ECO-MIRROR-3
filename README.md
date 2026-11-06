@@ -58,19 +58,20 @@ GitHub上でのPublic化はWebアプリのホスティングとは別で、本�
 
 `FILE_MANIFEST_SHA256.json`は**第0工程の最初の設計ファイルアップロード時点の記録**で、現在のブランチすべてのファイルを列挙するライブマニフェストではありません。
 
-## GitHub Pagesの公開（設定待ち）
+## Webサイトの公開：Cloudflare Pagesを採用（連携設定待ち）
 
-第1工程のWebサイト公開用に `.github/workflows/deploy-pages.yml` を追加しました。
+公開対象は新アプリ第1工程のReact UI。**実際の生態学的データ・計算はまだ未接続**。
 
-**現時点では公開完了ではありません。** GitHub Pagesの設定が未有効であり、自動デプロイの最初の試行は「Get Pages site failed」で停止しました。
+GitHub Pagesはソース設定保存後も実行前にジョブが失敗し、原因の詳細を取得できないため、Cloudflare Pagesへ切り替えました。GitHub Pagesのデプロイワークフローは自動実行を停止して保管しています。
 
-- [Pagesの設定](https://github.com/yumotof01-dotcom/ECO-MIRROR-3/settings/pages) → **Build and deployment → Source → GitHub Actions** を選ぶ。
-- 設定後にActionsの **Deploy ECO MIRROR 3.0 to GitHub Pages** の失敗した実行を **Re-run all jobs** で再実行するか、このチャットで設定完了を知らせる。
-- デプロイ成功後のサイトURL：**https://yumotof01-dotcom.github.io/ECO-MIRROR-3/**
-- 直接リンク：`#/explore`（探索）・`#/evidence`（根拠）。GitHub PagesではHashRouterを用い、URLを再読込しても404にならない。
-- 初期公開は研究データが未接続の**第1工程UIのみ**。正式な数理計算や生物移動の結果を示さない。
+- Cloudflare公式Git連携を使い、**ECO-MIRROR-3** リポジトリを選択する。
+- **Production branch：`feat/phase1-react-app-shell-2026-11`**（重要：今はmainではない）。
+- **Build command：`npm run build` / Build output：`dist`**。
+- **Node.js：`24.22.1`**（`.node-version`ファイルで固定）。
+- `GITHUB_PAGES_DEPLOY`環境変数は設定しない。
+- Cloudflare側で初回デプロイが成功した後に表示される`*.pages.dev`のURLが公開アプリへの正式な入口。**URLはまだ未発行・未検証**。
 
-詳細は [Pages公開手順・検証](docs/15-github-pages-release.md)。公開リポジトリと公開サイトは別の設定です。
+iPadでの具体的な操作方法は[Cloudflare Pages公開手順](docs/16-cloudflare-pages-release.md)。旧版の研究コードは変更していません。
 
 ## 見られるもの
 
