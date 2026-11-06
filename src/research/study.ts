@@ -133,13 +133,17 @@ function pinnedOptions(options:StudyLoadOptions):StudyLoadOptions {
 }
 export async function loadResearchStudy(region:RegionId,options:StudyLoadOptions={}):Promise<ResearchStudy> {
   throwIfCancelled(options.signal);
-  const data=await loadVerifiedStudyRegion(region,pinnedOptions(options));
+  let data:VerifiedStudyRegion;
+  try {data=await loadVerifiedStudyRegion(region,pinnedOptions(options));}
+  catch(error) {throwIfCancelled(options.signal);throw error;}
   throwIfCancelled(options.signal);
   return ResearchStudy.fromVerified(data);
 }
 export async function loadResearchSite(study:ResearchStudy,siteId:string,options:StudyLoadOptions={}) {
   throwIfCancelled(options.signal);
-  const site=await loadVerifiedInterventionSite(study.data,siteId,options);
+  let site:VerifiedSiteResults;
+  try {site=await loadVerifiedInterventionSite(study.data,siteId,options);}
+  catch(error) {throwIfCancelled(options.signal);throw error;}
   throwIfCancelled(options.signal);
   validateSite(study.data,site);
   return freeze(site);

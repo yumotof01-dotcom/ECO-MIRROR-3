@@ -42,10 +42,23 @@ npx playwright install --with-deps chromium
 npm run research:browser
 ```
 
-`.github/workflows/pre-ui-foundation.yml`が専用のブラウザ検証を実行する。初回ローカル環境ではChromiumがOSのsocket制約で起動できなかったため、ローカルでのブラウザ成功とは記録しない。GitHub Actionsの結果は完了後に追記する。
+`.github/workflows/pre-ui-foundation.yml`が専用のブラウザ検証を実行する。初回ローカル環境ではChromiumがOSのsocket制約で起動できなかったため、ローカルでのブラウザ成功とは記録しない。GitHub Actionsで実ブラウザ検証が成功した（下記）。
 
 ## 変更範囲と未完了
 
 既存研究コア16ファイルと公開データ115ファイル、既存App/CSS、旧リポジトリ、main、Cloudflare本番設定は変更しない。
 新APIとWorkerは独立ビルド。正式な探索UIへの接続、保存・再読込、iPad/Safari実機、読み上げ、低性能端末、現地の生態学的検証は未完了。
 「妥協なく網羅」は上記の定義済み6地域・440条件・96候補・264格子の範囲で判定する。任意地域や未定義条件の網羅、無欠陥や生物学的正確性の保証とはしない。
+
+
+## GitHub Actionsでの成功記録
+
+対象コミット：`069f051c0215ae5a4ced724a4407d995873d0aa6`。
+
+- [専用の実データ・バンドルWorker監査](https://github.com/yumotof01-dotcom/ECO-MIRROR-3/actions/runs/42215241872)：SUCCESS。
+- [既存の全テスト・型検査・ビルド・配信アセット監査](https://github.com/yumotof01-dotcom/ECO-MIRROR-3/actions/runs/42215241894)：SUCCESS（設計5件＋Vitest48件＝53件）。
+- Chromiumで6地域すべてのデータ取得、Workerによる地図準備、同面積候補比較、取消、Worker非対応時の失敗を確認。メインスレッドのタイマー継続も確認。
+- 原本16ファイルはGit blob SHA-1が全件一致。データ115ファイルとApp/CSSに変更なし。
+
+追加の境界テスト：PC=0でも計算済み値0を保持し、相対変化のみnull/undefined_zero_baselineとする。通信本文の失敗と同時に取消が起きてもAbortErrorを保つ。Worker時間の計測範囲は地図準備だけに限定する。
+これらを含む最終コミットのCIは同PRのChecksで追跡する。

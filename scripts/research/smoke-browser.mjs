@@ -38,6 +38,7 @@ try {
         const selection={pattern:'distributed',lossPercent:25,neighbourhood:4};
         const start=performance.now();
         const frame=await api.prepareResearchMap(study,selection);
+        const workerMilliseconds=Math.round(performance.now()-start);
         if(frame.vegetationAreaM2!==study.condition({...selection,lambdaMetres:40}).vegetationAreaM2 ||
           frame.patchLabels.length!==40000 || frame.regionId!==region)throw Error('Built worker data mismatch');
         const first=await api.loadResearchSite(study,study.candidates[0].site.id);
@@ -48,7 +49,7 @@ try {
         const cancelled=api.prepareResearchMap(study,selection,controller.signal);
         controller.abort();
         try {await cancelled;throw Error('Cancellation ignored');}catch(error){if(error.name!=='AbortError')throw error;}
-        frames.push({region,patches:frame.patches.length,workerMilliseconds:Math.round(performance.now()-start)});
+        frames.push({region,patches:frame.patches.length,workerMilliseconds});
       }
       const savedWorker=globalThis.Worker;
       globalThis.Worker=undefined;

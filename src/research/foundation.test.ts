@@ -10,6 +10,7 @@ import { validateSite } from './validation.ts';
 import { ResearchSession } from './session.ts';
 import { buildScenarioGridCache } from '../features/landscape/scenarios/engine.ts';
 import { extractPatches } from '../features/landscape/core/landscape.ts';
+import { detectModelChangeIntervals } from '../features/landscape/thresholds/detect.ts';
 import type { RegionId } from '../studies/verifiedStudyLoader.ts';
 
 type Mutable<T> = {-readonly [K in keyof T]: T[K] extends object ? Mutable<T[K]> : T[K]};
@@ -54,6 +55,15 @@ describe('Pre-UI foundation: actual immutable six-region research package',()=>{
         expect(curve.ecologicalThresholdValidated).toBe(false);
       }
     }
+  });
+  it('keeps a computed zero distinct from undefined relative change (synthetic zero-PC boundary)',()=>{
+    const synthetic=cloneMutable(studies[0]!.data);
+    for(const row of synthetic.baseline.ensemble.conditions)row.pc=0;
+    synthetic.baseline.thresholds=cloneMutable(detectModelChangeIntervals(synthetic.baseline.ensemble));
+    const study=ResearchStudy.fromVerified(synthetic),comparison=study.compare(CONDITIONS[0]!,CONDITIONS[1]!);
+    expect(comparison.before.pc).toBe(0);expect(comparison.deltaPc).toBe(0);
+    expect(comparison.relativeChange).toBeNull();expect(comparison.relativeStatus).toBe('undefined_zero_baseline');
+    expect(study.curve(CONDITIONS[0]!).diagnostic.status).toBe('UNDEFINED_BASELINE');
   });
   it('preserves every one of the 42,240 intervention results and separates PC gain from patch merger',async()=>{
     let count=0,gainWithoutMerger=0;
@@ -168,5 +178,14 @@ describe('Pre-UI foundation: actual immutable six-region research package',()=>{
     expect(session.state).toEqual({status:'cancelled',regionId:'sapporo'});
     session.clear();expect(session.state).toEqual({status:'idle'});
     expect(new Set(CONDITIONS.map(conditionId)).size).toBe(440);
+  });
+  it('preserves cancellation if the response body fails after the request was started',async()=>{
+    const controller=new AbortController();
+    const interrupted:typeof fetch=async()=>{
+      controller.abort();
+      return {ok:true,status:200,arrayBuffer:async()=>{throw new Error('body interrupted');}} as unknown as Response;
+    };
+    await expect(loadResearchStudy('shinjuku',{...options,signal:controller.signal,fetcher:interrupted}))
+      .rejects.toMatchObject({name:'AbortError'});
   });
 });
