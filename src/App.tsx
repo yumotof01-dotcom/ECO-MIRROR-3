@@ -1,5 +1,6 @@
 import { useRef, useState, type KeyboardEvent } from 'react';
 import { Link, NavLink, Route, Routes } from 'react-router-dom';
+import { StudyDataAuditPanel } from './studies/StudyDataAuditPanel.tsx';
 
 type Mode = 'connectivity' | 'scenario' | 'threshold' | 'bridge';
 const REGIONS = [
@@ -234,7 +235,7 @@ function Evidence() {
     <main id="main-content" className="evidence-page" tabIndex={-1}>
       <p className="overline">RESEARCH INTEGRITY</p>
       <h1>科学的な根拠と、まだ分からないこと。</h1>
-      <p className="evidence-intro">このアプリは、土地被覆の分類、数理モデルの計算、現地の生物学的な証拠を混同しません。現在は第1工程であり、研究データは新アプリへまだ移植していません。</p>
+      <p className="evidence-intro">このアプリは、土地被覆の分類、数理モデルの計算、現地の生物学的な証拠を混同しません。研究エンジンの新旧一致は検証済みで、2021年の静的データは検証付きで読み込めます。ただし、地図とシミュレーションの操作画面は次の工程です。</p>
       <div className="evidence-grid">
         <section className="evidence-tile">
           <span className="overline">01 / SOURCE</span>
@@ -258,10 +259,11 @@ function Evidence() {
         <section className="evidence-tile">
           <span className="overline">04 / VERIFICATION</span>
           <h2>旧研究と新アプリの違い</h2>
-          <p>旧ECO MIRRORの研究用計算は実データで検証済みですが、新アプリにはまだ接続していません。旧研究の数値一致とデータのハッシュ検証が完了するまで、正式な結果を表示しません。</p>
+          <p>旧研究エンジンは新アプリに移植済みで、6地域の計算結果の新旧一致も確認済みです。下のデータ検証画面では、配信ファイルを読み込む際のハッシュと完全性を確認できます。構造モデルの結果は生物学的な実測値ではありません。</p>
           <a href="https://github.com/yumotof01-dotcom/ECO-MIRROR/pull/20" target="_blank" rel="noopener noreferrer">旧研究の監査記録 ↗</a>
         </section>
       </div>
+      <StudyDataAuditPanel />
       <Link className="action-link" to="/explore">研究ワークスペースへ戻る <span aria-hidden="true">↗</span></Link>
     </main>
   );
