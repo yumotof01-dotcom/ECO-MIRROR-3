@@ -48,8 +48,8 @@ export function researchErrorMessage(error:unknown):Readonly<{code:ResearchError
   return Object.freeze({code:'unknown',message:'処理を完了できません。結果は表示しません。',retryable:true});
 }
 /** Ready means verified source/results only. A parsed but unreplayed file cannot enable export. */
-export function researchActions(status:UiStatus) {
-  return Object.freeze({selectRegion:true,selectCondition:status==='ready',compare:status==='ready',
+export function researchActions(status:UiStatus,options:{regionVerified?:boolean}={}) {
+  return Object.freeze({selectRegion:true,selectCondition:status==='ready'||status==='loading'&&options.regionVerified===true,compare:status==='ready',
     export:status==='ready',import:status!=='loading',cancel:status==='loading',retry:status==='error'||status==='cancelled'});
 }
 export function researchCapabilities() {

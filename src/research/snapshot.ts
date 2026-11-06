@@ -34,6 +34,11 @@ export class SnapshotError extends Error {
 }
 function fail(reason:SnapshotError['reason'],detail:string):never {throw new SnapshotError(reason,detail);}
 const isObject=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==='object'&&!Array.isArray(v);
+const sha=(v:unknown):v is string=>typeof v==='string'&&/^[0-9a-f]{64}$/.test(v);
+function validDate(v:unknown):v is string {
+  return typeof v==='string'&&/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(v)&&
+    Number.isFinite(Date.parse(v))&&new Date(v).toISOString()===v;
+}
 function exactKeys(v:Record<string,unknown>,keys:readonly string[]):boolean {
   return Object.keys(v).length===keys.length&&keys.every(k=>Object.hasOwn(v,k));
 }
@@ -131,12 +136,35 @@ export async function parseResearchSnapshot(text:string,signal?:AbortSignal):Pro
   const p=value.payload;
   if(p.schemaVersion!==SNAPSHOT_VERSION||p.producerContract!=='eco3-research-view-v1')fail('UNSUPPORTED_VERSION','Snapshot version is not supported');
   if(!exactKeys(p,['schemaVersion','createdAt','producerContract','provenance','resources','query','result'])||
-    typeof p.createdAt!=='string'||!/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(p.createdAt)||
-    !Number.isFinite(Date.parse(p.createdAt))||new Date(p.createdAt).toISOString()!==p.createdAt ||
+    !validDate(p.createdAt) ||
     !isObject(p.provenance)||!equivalent(p.provenance.release,STUDY_RELEASE)||
     !['shinjuku','osaka','nagoya','fukuoka','sapporo','odaiba'].includes(String(p.provenance.regionId))||!Array.isArray(p.resources))
     fail('INVALID_FORMAT','Invalid snapshot metadata or release');
-  validateResearchQuery(p.query);
+  const provenance=p.provenance;
+  if(!exactKeys(provenance,['release','regionId','datasetId','classSha256','maskSha256','crs','sourceUrl','attribution','caveats'])||
+    typeof provenance.datasetId!=='string'||!/^esa-worldcover-2021-v200-[A-Za-z0-9-]+$/.test(provenance.datasetId)||
+    !sha(provenance.classSha256)||!sha(provenance.maskSha256)||typeof provenance.crs!=='string'||
+    !/^EPSG:66(?:69|7[0-9]|8[0-7])$/.test(provenance.crs)||
+    typeof provenance.sourceUrl!=='string'||!provenance.sourceUrl.startsWith('https://')||provenance.sourceUrl.length>1024||
+    typeof provenance.attribution!=='string'||!provenance.attribution||provenance.attribution.length>2048||
+    !Array.isArray(provenance.caveats)||provenance.caveats.length>16||
+    !provenance.caveats.every(c=>typeof c==='string'&&c.length<=2048)||!isObject(p.result))
+    fail('INVALID_FORMAT','Incomplete source evidence or result object');
+  const query=validateResearchQuery(p.query);
+  const siteIds=new Set(query.kind==='intervention'?[query.siteId]:query.kind==='candidates'?[query.firstSiteId,query.secondSiteId]:[]);
+  const resources=p.resources as unknown[];
+  const seen=new Set<string>(),kinds=new Map<string,number>();
+  if(resources.length!==3+siteIds.size)fail('INVALID_FORMAT','Unexpected saved resource count');
+  for(const r of resources) {
+    if(!isObject(r)||!exactKeys(r,r.kind==='site'?['kind','path','sha256','bytes','siteId']:['kind','path','sha256','bytes'])||
+      !['crop','baseline','bridges-summary','site'].includes(String(r.kind))||typeof r.path!=='string'||
+      !r.path.startsWith(`regions/${provenance.regionId}/`)||r.path.includes('..')||!/^[a-z0-9./_-]+$/.test(r.path)||
+      seen.has(r.path)||!sha(r.sha256)||typeof r.bytes!=='number'||!Number.isSafeInteger(r.bytes)||r.bytes<1||r.bytes>350000)
+      fail('INVALID_FORMAT','Invalid saved resource descriptor');
+    seen.add(r.path);kinds.set(String(r.kind),(kinds.get(String(r.kind))??0)+1);
+    if(r.kind==='site'&&(typeof r.siteId!=='string'||!siteIds.delete(r.siteId)))fail('INVALID_FORMAT','Unexpected or duplicate saved site');
+  }
+  if(siteIds.size||['crop','baseline','bridges-summary'].some(k=>kinds.get(k)!==1))fail('INVALID_FORMAT','Missing saved source resources');
   if(await hash(p)!==value.sha256)fail('CHECKSUM_MISMATCH','Snapshot contents were changed');
   throwIfCancelled(signal);
   return value as unknown as ResearchSnapshot;
@@ -162,6 +190,7 @@ export async function replayResearchSnapshot(text:string,options:StudyLoadOption
 export function snapshotFile(snapshot:ResearchSnapshot):{filename:string;blob:Blob} {
   const region=snapshot.payload.provenance.regionId;
   if(!['shinjuku','osaka','nagoya','fukuoka','sapporo','odaiba'].includes(region))fail('INVALID_FORMAT','Unknown region');
+  if(!validDate(snapshot.payload.createdAt))fail('INVALID_FORMAT','Invalid saved date');
   return {filename:`eco-mirror-${region}-${snapshot.payload.createdAt.slice(0,10)}.json`,
     blob:new Blob([serializeResearchSnapshot(snapshot)],{type:'application/json;charset=utf-8'})};
 }

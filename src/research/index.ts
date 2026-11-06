@@ -11,3 +11,5 @@ export { createResearchSnapshot,serializeResearchSnapshot,parseResearchSnapshot,
 export type { ResearchQuery,ResearchSnapshot } from './snapshot.ts';
 export { RESEARCH_UI_CONTRACT,researchErrorMessage,researchActions,researchCapabilities } from './uiContract.ts';
 export type { UiStatus,ResearchErrorCode } from './uiContract.ts';
+export { ResearchMapSession } from './mapSession.ts';
+export type { ResearchMapState } from './mapSession.ts';

@@ -63,6 +63,12 @@ try {
       globalThis.auditSession=new api.ResearchSession();
       const first=await globalThis.auditSession.select('shinjuku');
       if(first.status!=='ready')throw Error('Session could not load initial region');
+      const maps=new api.ResearchMapSession();
+      const old=maps.select(globalThis.auditStudy,{pattern:'distributed',lossPercent:0,neighbourhood:4});
+      const latest=maps.select(globalThis.auditStudy,{pattern:'edge_first',lossPercent:50,neighbourhood:8});
+      if(maps.state.status!=='loading'||'frame' in maps.state)throw Error('Old map retained during selection change');
+      await Promise.all([old,latest]);
+      if(maps.state.status!=='ready'||maps.state.frame.selection.lossPercent!==50)throw Error('Old condition replaced the latest map');
       return {roundTrips,regions:6,workerCancellations:10,userAgent:navigator.userAgent};
     });
     const downloaded=page.waitForEvent('download');

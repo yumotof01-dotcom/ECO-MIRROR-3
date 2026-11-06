@@ -9,7 +9,7 @@ import {CONDITIONS} from './conditions.ts';
 import {canonicalSnapshotJson,createResearchSnapshot,serializeResearchSnapshot,parseResearchSnapshot,
   readResearchSnapshot,replayResearchSnapshot,snapshotFile,MAX_SNAPSHOT_BYTES} from './snapshot.ts';
 import type {ResearchQuery} from './snapshot.ts';
-import {researchActions,researchErrorMessage,RESEARCH_UI_CONTRACT} from './uiContract.ts';
+import {researchActions,researchErrorMessage,researchCapabilities,RESEARCH_UI_CONTRACT} from './uiContract.ts';
 import {StudyIntegrityError} from '../studies/verifiedStudyLoader.ts';
 
 type Mutable<T>={-readonly [K in keyof T]:T[K] extends object?Mutable<T[K]>:T[K]};
@@ -84,9 +84,9 @@ describe('Saved research results and verified replay',()=>{
     ];
     const requested:string[]=[];
     const recording:typeof fetch=(input,init)=>{requested.push(String(input));return fetcher(input,init);};
-    for(const change of mutations) {
+    for(const [i,change] of mutations.entries()) {
       const altered=structuredClone(saved) as Mutable<typeof saved>;change(altered);
-      await expect(replayResearchSnapshot(rehash(altered),{...options,fetcher:recording})).rejects.toMatchObject({reason:'REPLAY_MISMATCH'});
+      await expect(replayResearchSnapshot(rehash(altered),{...options,fetcher:recording})).rejects.toMatchObject({reason:i===1?'INVALID_FORMAT':'REPLAY_MISMATCH'});
     }
     expect(requested.every(url=>url.startsWith('https://fixture.invalid/studies/'))).toBe(true);
   });
@@ -130,6 +130,14 @@ describe('Saved research results and verified replay',()=>{
   });
 });
 describe('UI handoff state/evidence contract',()=>{
+  it('reports unsupported capabilities instead of silently enabling unverified work',()=>{
+    vi.stubGlobal('Worker',undefined);
+    expect(researchCapabilities()).toMatchObject({cryptoAvailable:true,canPrepareMap:false,canSaveAndReplay:true});
+    vi.stubGlobal('Worker',class {});
+    expect(researchCapabilities().canPrepareMap).toBe(true);
+    vi.stubGlobal('crypto',undefined);
+    expect(researchCapabilities()).toMatchObject({canVerify:false,canPrepareMap:false,canSaveAndReplay:false});
+  });
   it('enables scientific actions only for verified ready state',()=>{
     for(const status of RESEARCH_UI_CONTRACT.states) {
       const actions=researchActions(status);
@@ -138,6 +146,7 @@ describe('UI handoff state/evidence contract',()=>{
     }
     expect(RESEARCH_UI_CONTRACT.sourceYear).toBe(2021);
     expect(RESEARCH_UI_CONTRACT.requiredEvidence).toContain('caveats');
+    expect(researchActions('loading',{regionVerified:true})).toMatchObject({selectCondition:true,compare:false,export:false});
   });
   it('gives stable non-technical error text while preserving cancellation and retry rules',async()=>{
     const bad=new StudyIntegrityError('HASH_MISMATCH','secret/internal-path');

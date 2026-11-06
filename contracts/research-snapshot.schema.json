@@ -1,0 +1,332 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:eco-mirror:research-snapshot:v1",
+  "title": "ECO MIRROR research snapshot v1",
+  "$comment": "Structural schema only. The app also enforces UTF-8 byte/depth/node limits, checksum, pinned sources, and exact replay before marking results verified.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "canonicalization",
+    "sha256",
+    "payload"
+  ],
+  "properties": {
+    "canonicalization": {
+      "const": "eco3-sorted-json-v1"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "createdAt",
+        "producerContract",
+        "provenance",
+        "resources",
+        "query",
+        "result"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "eco3-research-snapshot-v1"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+        },
+        "producerContract": {
+          "const": "eco3-research-view-v1"
+        },
+        "provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "release",
+            "regionId",
+            "datasetId",
+            "classSha256",
+            "maskSha256",
+            "crs",
+            "sourceUrl",
+            "attribution",
+            "caveats"
+          ],
+          "properties": {
+            "release": {
+              "const": {
+                "id": "worldcover-2021-v200-six-region-v1",
+                "manifestSha256": "cddd22e498612611be888a691b5ee5ab637cfcf56539522fec3bb051912c57b5",
+                "researchCommit": "9a7fa63bc83f350c80ddf775124cd3cbeb6c112e",
+                "year": 2021,
+                "model": "centroid-distance-exponential-v1",
+                "license": "CC BY 4.0",
+                "doi": "10.5281/zenodo.7254221",
+                "fieldValidation": "not_performed",
+                "selectionScope": "twelve_connectors_and_four_references_per_region_not_all_locations"
+              }
+            },
+            "regionId": {
+              "enum": [
+                "shinjuku",
+                "osaka",
+                "nagoya",
+                "fukuoka",
+                "sapporo",
+                "odaiba"
+              ]
+            },
+            "datasetId": {
+              "type": "string",
+              "pattern": "^esa-worldcover-2021-v200-[A-Za-z0-9-]+$"
+            },
+            "classSha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "maskSha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "crs": {
+              "type": "string",
+              "pattern": "^EPSG:66(69|7[0-9]|8[0-7])$"
+            },
+            "sourceUrl": {
+              "type": "string",
+              "pattern": "^https://",
+              "maxLength": 1024
+            },
+            "attribution": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            "caveats": {
+              "type": "array",
+              "maxItems": 16,
+              "items": {
+                "type": "string",
+                "maxLength": 2048
+              }
+            }
+          }
+        },
+        "resources": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 5,
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "path",
+                  "sha256",
+                  "bytes"
+                ],
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "crop",
+                      "baseline",
+                      "bridges-summary"
+                    ]
+                  },
+                  "path": {
+                    "type": "string",
+                    "pattern": "^regions/(shinjuku|osaka|nagoya|fukuoka|sapporo|odaiba)/[a-z0-9/_.-]+$"
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  "bytes": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 350000
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "path",
+                  "sha256",
+                  "bytes",
+                  "siteId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "site"
+                  },
+                  "path": {
+                    "type": "string",
+                    "pattern": "^regions/(shinjuku|osaka|nagoya|fukuoka|sapporo|odaiba)/[a-z0-9/_.-]+$"
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  "bytes": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 350000
+                  },
+                  "siteId": {
+                    "type": "string",
+                    "pattern": "^(connector|reference)-x[0-9]+-y[0-9]+$"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "query": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "conditionId"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "condition"
+                },
+                "conditionId": {
+                  "type": "string",
+                  "pattern": "^(distributed|edge_first)-n(4|8)-lambda(40|60|90|135|200|300|450|675|1000|1500)-loss(0|5|10|15|20|25|30|35|40|45|50)$"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "beforeId",
+                "afterId"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "comparison"
+                },
+                "beforeId": {
+                  "type": "string",
+                  "pattern": "^(distributed|edge_first)-n(4|8)-lambda(40|60|90|135|200|300|450|675|1000|1500)-loss(0|5|10|15|20|25|30|35|40|45|50)$"
+                },
+                "afterId": {
+                  "type": "string",
+                  "pattern": "^(distributed|edge_first)-n(4|8)-lambda(40|60|90|135|200|300|450|675|1000|1500)-loss(0|5|10|15|20|25|30|35|40|45|50)$"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "pattern",
+                "neighbourhood",
+                "lambdaMetres"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "curve"
+                },
+                "pattern": {
+                  "enum": [
+                    "distributed",
+                    "edge_first"
+                  ]
+                },
+                "neighbourhood": {
+                  "enum": [
+                    4,
+                    8
+                  ]
+                },
+                "lambdaMetres": {
+                  "enum": [
+                    40,
+                    60,
+                    90,
+                    135,
+                    200,
+                    300,
+                    450,
+                    675,
+                    1000,
+                    1500
+                  ]
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "siteId",
+                "conditionId"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "intervention"
+                },
+                "siteId": {
+                  "type": "string",
+                  "pattern": "^(connector|reference)-x[0-9]+-y[0-9]+$"
+                },
+                "conditionId": {
+                  "type": "string",
+                  "pattern": "^(distributed|edge_first)-n(4|8)-lambda(40|60|90|135|200|300|450|675|1000|1500)-loss(0|5|10|15|20|25|30|35|40|45|50)$"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "firstSiteId",
+                "secondSiteId",
+                "conditionId"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "candidates"
+                },
+                "firstSiteId": {
+                  "type": "string",
+                  "pattern": "^(connector|reference)-x[0-9]+-y[0-9]+$"
+                },
+                "secondSiteId": {
+                  "type": "string",
+                  "pattern": "^(connector|reference)-x[0-9]+-y[0-9]+$"
+                },
+                "conditionId": {
+                  "type": "string",
+                  "pattern": "^(distributed|edge_first)-n(4|8)-lambda(40|60|90|135|200|300|450|675|1000|1500)-loss(0|5|10|15|20|25|30|35|40|45|50)$"
+                }
+              }
+            }
+          ]
+        },
+        "result": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}
