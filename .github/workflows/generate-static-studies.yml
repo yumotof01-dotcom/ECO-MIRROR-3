@@ -51,6 +51,19 @@ jobs:
         run: node --experimental-strip-types scripts/landscape/pack-studies.mjs /tmp/eco3-phase3 public/studies/worldcover-2021-v200
       - name: Independently compare all SHA256 assets to reconstructed original model reports
         run: node scripts/landscape/audit-static-packages.mjs public/studies/worldcover-2021-v200
+      - name: Ensure every published JSON stays within the browser loader size limits
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          root=Path("public/studies/worldcover-2021-v200")
+          files=list(root.rglob("*.json"))
+          assert len(files)==115, "Unexpected resource count"
+          for file in files:
+              maximum=120000 if file.name=="manifest.json" else 350000
+              assert 0 < file.stat().st_size <= maximum, f"Browser resource limit exceeded: {file}"
+          print("STATIC_BROWSER_RESOURCE_LIMITS=PASS", len(files))
+          PY
       - name: Prove that the publisher refuses corrupted file bytes
         shell: bash
         run: |
