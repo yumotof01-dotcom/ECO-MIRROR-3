@@ -21,6 +21,8 @@ jobs:
         run: npm run design:check && npm test
       - name: Verify TypeScript and build production static bundle
         run: npm run build
+      - name: Verify compiled assets for Cloudflare Pages root URL
+        run: node scripts/assert-cloudflare-build.mjs
       - name: Smoke-test built SPA over local HTTP
         shell: bash
         run: |
