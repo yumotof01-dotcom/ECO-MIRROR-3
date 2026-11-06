@@ -17,7 +17,23 @@ Cloudflare Pagesには既存GitHubリポジトリを直接連携する無料の�
 - `scripts/assert-cloudflare-build.mjs` とGitHub Actionsの設計CIで、CloudflareのルートURLに必要なJS/CSSファイルとHTMLの参照をチェックする。
 - GitHub Pages用ワークフローは削除せず、`workflow_dispatch`での手動起動のみに変更。自動実行で繰り返し失敗させない。
 
-**重要：Cloudflare Pagesのプロジェクト自体はまだ作られていない。Cloudflareアカウントへの認可が必要なので、ここから先の設定はアカウント所有者が行う。成功前に公開済みのURLをでっちあげない。**
+**更新：Cloudflare Pagesプロジェクト「eco-mirror-3」はGitHub連携済み。ただしサイトは正常にビルドされていない。**
+GitHub Actionsの外部HTTP診断で、2026-11-06時点の結果を取得した。
+- `https://eco-mirror-3.pages.dev/` と初期リンク `https://e0542378.eco-mirror-3.pages.dev/` は **HTTP 404・HTMLなし**。
+- CloudflareがGitHubの`feat/phase1-react-app-shell-2026-11`ブランチについて成功表示したプレビュー `https://feat-phase1-react-app-shell.eco-mirror-3.pages.dev/` および `https://ca35856a.eco-mirror-3.pages.dev/` は **HTTP 200** だが、返されたHTMLはソースの`index.html`そのもの（`/src/main.tsx`を直接参照）。ビルド後の`/assets/*.js`と`/assets/*.css`がないためReactが起動できず白画面になる。
+- これはViteアプリ内部の例外ではなく**Cloudflareがビルド成果物`dist/`を配信していない**事象。CIではViteビルドとCSS/JS成果物検証が通っている。
+
+## 既存のCloudflare Pagesプロジェクトの修正（新規プロジェクトの作成不要）
+
+1. [Cloudflareダッシュボード](https://dash.cloudflare.com/) → **Workers & Pages** → **eco-mirror-3** → **Settings** → **Builds**（または **Builds & deployments**）を開く。
+2. **Build configuration** で **Build command = `npm run build`、Build output directory = `dist`、Root directory = リポジトリ直下**にする。Cloudflare公式のReact (Vite)設定と一致させる。
+3. **Branch control → Production branch** は **`feat/phase1-react-app-shell-2026-11`**を選択する。現在はこのブランチがプレビューURLとして扱われ、通常公開URL側は404であり、本番ブランチが異なる可能性が高い。
+4. **Node version** は `.node-version`を参照するか、Build環境変数`NODE_VERSION=24.22.1`を指定する（既存環境にバージョンがあれば不要）。`GITHUB_PAGES_DEPLOY`は設定しない。
+5. 保存後に **Deployments** から該当ブランチを**Retry deployment** するか、新規コミットを再デプロイする。成功後、HTMLに`/assets/*.js`と`/assets/*.css`の参照があり、どちらもHTTP 200であることを確認する。
+
+**Cloudflare側の設定変更はアカウント所有者の操作が必要。まだ公開成功を宣言しない。**
+
+## 参考：プロジェクトを新規に作成する場合だけの手順
 
 ## iPadのSafariから1回だけ行う操作
 
