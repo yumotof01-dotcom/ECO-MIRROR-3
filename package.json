@@ -18,7 +18,8 @@
     "research:build": "vite build --config vite.research.config.ts",
     "research:browser": "node scripts/research/smoke-browser.mjs",
     "research:audit": "node scripts/landscape/audit-static-packages.mjs && vitest run src/research",
-    "research:integration": "node scripts/research/integration-browser.mjs"
+    "research:integration": "node scripts/research/integration-browser.mjs",
+    "research:stress1000": "vitest run src/research/stress1000.test.ts"
   },
   "dependencies": {
     "react": "19.3.1",

@@ -54,7 +54,7 @@ RESEARCH_BROWSER=firefox npm run research:integration
 RESEARCH_BROWSER=webkit npm run research:integration
 ```
 
-専用CI：`.github/workflows/pre-ui-integration.yml`。成果物`pre-ui-integration-BROWSER`の保存期限は14日。検証仕様と結果の要約はこのリポジトリにも保持する。
+専用CI：Firefox/WebKitは`.github/workflows/pre-ui-integration.yml`、Chromiumは`.github/workflows/pre-ui-foundation.yml`。Chromiumは既存のWorker検証で導入済みのブラウザを再利用し、同じ依存の重複ダウンロードを避ける。3エンジンとも同じintegrationスクリプトを実行する。成果物`pre-ui-integration-BROWSER`の保存期限は14日。検証仕様と結果の要約はこのリポジトリにも保持する。
 手元の実行環境にはChromium起動のsocket制限があるため、実ブラウザ検証はGitHub Actionsで実行する。ローカルで実機検証したとは扱わない。
 
 ## 完了判定

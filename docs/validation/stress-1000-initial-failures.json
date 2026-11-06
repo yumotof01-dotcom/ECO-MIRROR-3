@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "eco3-stress-1000-v1",
+  "seed": 3970113574,
+  "planSha256": "03a908ef9d48d839b216442716fa3908700bc70c818423d97233a5d34a5f4b41",
+  "sourceFingerprint": "bc0a489a697359e37b31e8704a76875c39aa96f5252e5f65d0da53dc3748f68d",
+  "runtime": "v24.22.1",
+  "expected": 1000,
+  "executed": 1000,
+  "passed": 988,
+  "failed": 12,
+  "categories": {
+    "conditions": {
+      "planned": 440,
+      "executed": 440,
+      "passed": 440,
+      "failed": 0
+    },
+    "roundtrip": {
+      "planned": 120,
+      "executed": 120,
+      "passed": 120,
+      "failed": 0
+    },
+    "tamper": {
+      "planned": 120,
+      "executed": 120,
+      "passed": 108,
+      "failed": 12
+    },
+    "distribution": {
+      "planned": 36,
+      "executed": 36,
+      "passed": 36,
+      "failed": 0
+    },
+    "maps": {
+      "planned": 88,
+      "executed": 88,
+      "passed": 88,
+      "failed": 0
+    },
+    "races": {
+      "planned": 72,
+      "executed": 72,
+      "passed": 72,
+      "failed": 0
+    },
+    "invalid_settings": {
+      "planned": 48,
+      "executed": 48,
+      "passed": 48,
+      "failed": 0
+    },
+    "bridges": {
+      "planned": 48,
+      "executed": 48,
+      "passed": 48,
+      "failed": 0
+    },
+    "file_bounds": {
+      "planned": 28,
+      "executed": 28,
+      "passed": 28,
+      "failed": 0
+    }
+  },
+  "limitations": [
+    "native_runtime_cases_not_1000_physical_device_runs",
+    "browser_matrix_is_a_separate_CI_gate",
+    "not_field_ecological_validation"
+  ],
+  "failedCases": [
+    {
+      "id": "tamper/shinjuku-curve_array_to_object",
+      "category": "tamper"
+    },
+    {
+      "id": "tamper/shinjuku-empty_array_to_object",
+      "category": "tamper"
+    },
+    {
+      "id": "tamper/osaka-curve_array_to_object",
+      "category": "tamper"
+    },
+    {
+      "id": "tamper/osaka-empty_array_to_object",
+      "category": "tamper"
+    },
+    {
+      "id": "tamper/nagoya-curve_array_to_object",
+      "category": "tamper"
+    },
+    {
+      "id": "tamper/nagoya-empty_array_to_object",
+      "category": "tamper"
+    },
+    {
+      "id": "tamper/fukuoka-curve_array_to_object",
+      "category": "tamper"
+    },
+    {
+      "id": "tamper/fukuoka-empty_array_to_object",
+      "category": "tamper"
+    },
+    {
+      "id": "tamper/sapporo-curve_array_to_object",
+      "category": "tamper"
+    },
+    {
+      "id": "tamper/sapporo-empty_array_to_object",
+      "category": "tamper"
+    },
+    {
+      "id": "tamper/odaiba-curve_array_to_object",
+      "category": "tamper"
+    },
+    {
+      "id": "tamper/odaiba-empty_array_to_object",
+      "category": "tamper"
+    }
+  ],
+  "rootCause": "array_and_object_types_were_treated_as_equal",
+  "fix": "require_both_values_to_be_arrays_if_either_value_is_an_array"
+}

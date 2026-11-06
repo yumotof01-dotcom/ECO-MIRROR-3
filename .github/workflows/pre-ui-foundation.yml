@@ -25,6 +25,14 @@ jobs:
       - run: npm ci
       - name: Audit all static resources and all research views/map frames
         run: npm run research:audit
+      - name: Retain all 1000 individual case outcomes, including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stress-1000-case-ledger
+          path: .artifacts/stress-1000.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Compile public app and independent worker integration library
         run: npm run build && npm run research:build
       - name: Independently validate built exports against the JSON Schema
@@ -37,3 +45,15 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Exercise real module workers, six regions, cancellation and missing-worker failure
         run: npm run research:browser
+      - name: Run full Chromium integration using the already installed browser
+        env:
+          RESEARCH_BROWSER: chromium
+        run: npm run research:integration
+      - name: Archive Chromium viewport and bounded memory evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pre-ui-integration-chromium
+          path: .artifacts/research-integration-chromium.json
+          if-no-files-found: ignore
+          retention-days: 14

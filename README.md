@@ -82,3 +82,8 @@ npm run research:build
 - 元研究：[旧ECO-MIRROR Draft PR #20](https://github.com/yumotof01-dotcom/ECO-MIRROR/pull/20)、固定コミット`9a7fa63bc83f350c80ddf775124cd3cbeb6c112e`。
 - 土地被覆：[ESA WorldCover 2021 v200](https://doi.org/10.5281/zenodo.7254221)、CC BY 4.0。各データと画面用モデルに帰属情報を保持。
 - 新リポジトリ：[yumotof01-dotcom/ECO-MIRROR-3](https://github.com/yumotof01-dotcom/ECO-MIRROR-3)。Public化は確認済み。ソフトウェア自体のライセンスは未決定です。
+
+
+## 多面的な1,000ケース検証
+
+`npm run research:stress1000`で9分類・1,000の異なるケースを実行する。初回の988成功/12失敗から、配列とオブジェクトの比較不具合1件を最小修正し、再実行で1,000成功。ケース別台帳と対象ソースfingerprintを保持する。[検証内容と結果](docs/26-stress-1000-audit.md)。物理実機の検証回数とは区別する。

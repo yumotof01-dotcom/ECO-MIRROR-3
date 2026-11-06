@@ -17,7 +17,8 @@ export function originalClasses(study: VerifiedStudyRegion): Uint8Array {
 /** Compare JSON objects by meaning, independent of property order. Exact numeric equality is intentional. */
 export function equivalent(a: unknown, b: unknown): boolean {
   if (a === b) return true;
-  if (Array.isArray(a) && Array.isArray(b)) return a.length === b.length && a.every((v,i) => equivalent(v,b[i]));
+  if (Array.isArray(a) || Array.isArray(b)) return Array.isArray(a) && Array.isArray(b) &&
+    a.length === b.length && a.every((v,i) => equivalent(v,b[i]));
   if (a && b && typeof a === 'object' && typeof b === 'object') {
     const aa = a as Record<string,unknown>, bb = b as Record<string,unknown>;
     const keys = Object.keys(aa);

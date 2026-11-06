@@ -63,13 +63,27 @@ try {
       globalThis.auditSession=new api.ResearchSession();
       const first=await globalThis.auditSession.select('shinjuku');
       if(first.status!=='ready')throw Error('Session could not load initial region');
+      // Rehash deliberately malformed nested containers: integrity alone is not type equality.
+      const encode=v=>Array.isArray(v)?'['+v.map(encode).join(',')+']':v&&typeof v==='object'?
+        '{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+encode(v[k])).join(',')+'}':JSON.stringify(v);
+      for(const kind of ['comparison','curve']) {
+        const condition=api.CONDITIONS[0],query=kind==='comparison'?{kind,beforeId:condition.scenarioId,afterId:condition.scenarioId}:
+          {kind,pattern:condition.pattern,neighbourhood:condition.neighbourhood,lambdaMetres:condition.lambdaMetres};
+        const malformed=structuredClone(await api.createResearchSnapshot(globalThis.auditStudy,query));
+        if(kind==='comparison')malformed.payload.result.changedAxes={};
+        else malformed.payload.result.points={...malformed.payload.result.points};
+        malformed.sha256=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(encode(malformed.payload)))),b=>b.toString(16).padStart(2,'0')).join('');
+        let rejected=false;
+        try {await api.replayResearchSnapshot(JSON.stringify(malformed));}catch(e){rejected=e.reason==='REPLAY_MISMATCH';}
+        if(!rejected)throw Error('Array/object snapshot mutation was accepted');
+      }
       const maps=new api.ResearchMapSession();
       const old=maps.select(globalThis.auditStudy,{pattern:'distributed',lossPercent:0,neighbourhood:4});
       const latest=maps.select(globalThis.auditStudy,{pattern:'edge_first',lossPercent:50,neighbourhood:8});
       if(maps.state.status!=='loading'||'frame' in maps.state)throw Error('Old map retained during selection change');
       await Promise.all([old,latest]);
       if(maps.state.status!=='ready'||maps.state.frame.selection.lossPercent!==50)throw Error('Old condition replaced the latest map');
-      return {roundTrips,regions:6,workerCancellations:10,userAgent:navigator.userAgent};
+      return {roundTrips,regions:6,workerCancellations:10,arrayObjectMutationsRejected:2,userAgent:navigator.userAgent};
     });
     const downloaded=page.waitForEvent('download');
     await page.evaluate(async()=>{
