@@ -1,0 +1,95 @@
+name: Build six verified 2021 study data packages
+
+on:
+  push:
+    branches:
+      - feat/phase3-static-study-packages-2026-11
+    paths:
+      - "scripts/landscape/pack-studies.mjs"
+      - "scripts/landscape/audit-static-packages.mjs"
+      - ".github/workflows/generate-static-studies.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: eco3-verified-static-study-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  generate-verified-study-assets:
+    if: github.repository == 'yumotof01-dotcom/ECO-MIRROR-3' && github.ref == 'refs/heads/feat/phase3-static-study-packages-2026-11'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out new application phase-3 branch only
+        uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install exact ESA WorldCover geospatial dependencies
+        run: python -m pip install rasterio==1.4.3 pyproj==3.7.2 numpy==2.2.6
+      - name: Reproduce genuine 2021 source crops and all 44,880 model records
+        shell: bash
+        run: |
+          set -euo pipefail
+          for site in shinjuku osaka nagoya fukuoka sapporo odaiba; do
+            mkdir -p "/tmp/eco3-phase3/$site"
+            python scripts/landscape/ingest_worldcover.py --site "$site" --out "/tmp/eco3-phase3/$site/crop.json"
+            node --experimental-strip-types scripts/landscape/run-worldcover.mjs "/tmp/eco3-phase3/$site/crop.json" "/tmp/eco3-phase3/$site/baseline.json"
+            python scripts/landscape/audit_real_results.py "/tmp/eco3-phase3/$site/crop.json" "/tmp/eco3-phase3/$site/baseline.json"
+            node --experimental-strip-types scripts/landscape/run-bridges.mjs "/tmp/eco3-phase3/$site/crop.json" "/tmp/eco3-phase3/$site/baseline.json" "/tmp/eco3-phase3/$site/bridges.json"
+            python scripts/landscape/audit_bridges.py "/tmp/eco3-phase3/$site/crop.json" "/tmp/eco3-phase3/$site/baseline.json" "/tmp/eco3-phase3/$site/bridges.json"
+            echo "REAL_2021_SOURCE_INDEPENDENT_AUDIT=PASS $site"
+          done
+      - name: Generate hashed metadata index and lazy region/site JSON
+        run: node --experimental-strip-types scripts/landscape/pack-studies.mjs /tmp/eco3-phase3 public/studies/worldcover-2021-v200
+      - name: Independently compare all SHA256 assets to reconstructed original model reports
+        run: node scripts/landscape/audit-static-packages.mjs public/studies/worldcover-2021-v200
+      - name: Prove that the publisher refuses corrupted file bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          target=public/studies/worldcover-2021-v200/regions/shinjuku/crop.json
+          cp "$target" /tmp/pristine-worldcover-crop.json
+          printf 'X' >> "$target"
+          if node scripts/landscape/audit-static-packages.mjs public/studies/worldcover-2021-v200 >/tmp/tamper-stdout.log 2>/tmp/tamper-stderr.log; then
+            echo "CRITICAL: altered source was not rejected"
+            exit 1
+          fi
+          cp /tmp/pristine-worldcover-crop.json "$target"
+          node scripts/landscape/audit-static-packages.mjs public/studies/worldcover-2021-v200
+          echo "STATIC_2021_CORRUPTION_REJECTION=PASS"
+      - name: Verify existing design, model, TypeScript, React and bundle
+        run: |
+          npm ci
+          npm run check
+          node scripts/assert-cloudflare-build.mjs
+      - name: Save only publicly licensed, verified 2021 study packages on development branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/feat/phase3-static-study-packages-2026-11"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- public/studies/worldcover-2021-v200
+          if git diff --cached --quiet; then
+            echo "STUDY_PACKAGES_UNCHANGED=PASS"
+          else
+            git commit -m "data(2021): publish six independently audited SHA256 regional study packs"
+            git push origin HEAD:refs/heads/feat/phase3-static-study-packages-2026-11
+            echo "STUDY_PACKAGES_COMMITTED=PASS"
+          fi
+      - name: Retain published study bytes as reproducibility evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eco3-phase3-2021-verified-packages
+          path: public/studies/worldcover-2021-v200
+          retention-days: 14
+          if-no-files-found: warn
