@@ -193,7 +193,7 @@ export async function loadStudyIndex(options:StudyLoadOptions={}):Promise<StudyI
     for(const r of maybe.resources) {
       if(!object(r) || !["crop","baseline","bridges-summary","site"].includes(String(r.kind)) ||
         !pathOk(r.path,maybe.regionId as RegionId) || paths.has(r.path) ||
-        !hex(r.sha256) || !Number.isSafeInteger(r.bytes) || !(r.bytes>0&&r.bytes<=MAX_RESOURCE_BYTES))
+        !hex(r.sha256) || typeof r.bytes!=="number" || !Number.isSafeInteger(r.bytes) || !(r.bytes>0&&r.bytes<=MAX_RESOURCE_BYTES))
         return invalid("INVALID_MANIFEST","Invalid, oversized, repeated or unsafe resource descriptor.");
       paths.add(r.path);
       if(r.kind==="site"){
@@ -203,7 +203,8 @@ export async function loadStudyIndex(options:StudyLoadOptions={}):Promise<StudyI
           return invalid("INVALID_MANIFEST","Invalid intervention result path/ID.");
       }
     }
-    if(sites!==16 || ["crop","baseline","bridges-summary"].some(k=>maybe.resources.filter((r:StudyResource)=>r.kind===k).length!==1))
+    const descriptors=maybe.resources as unknown[];
+    if(sites!==16 || ["crop","baseline","bridges-summary"].some(k=>descriptors.filter(r=>object(r)&&r.kind===k).length!==1))
       return invalid("INVALID_MANIFEST","Missing/duplicate core research resources.");
   }
   if(seen.size!==REGIONS.length) return invalid("INVALID_MANIFEST","Required research region is absent.");
@@ -313,6 +314,7 @@ export async function loadVerifiedInterventionSite(
       record.beforeVegetationAreaM2!==before.vegetationAreaM2 ||
       typeof record.afterVegetationAreaM2!=="number" ||
       record.afterVegetationAreaM2-record.beforeVegetationAreaM2!==400 ||
+      typeof record.beforePatchCount!=="number" || typeof record.afterPatchCount!=="number" ||
       !Number.isSafeInteger(record.beforePatchCount) || !Number.isSafeInteger(record.afterPatchCount) ||
       record.beforePatchCount<0 || record.afterPatchCount<0 ||
       record.patchesJoined!==Math.max(0,record.beforePatchCount-record.afterPatchCount))
