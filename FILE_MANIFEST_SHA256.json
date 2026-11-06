@@ -1,0 +1,106 @@
+{
+  ".github/workflows/design-audit.yml": {
+    "size_bytes": 584,
+    "sha256": "7cca47957907e6cc66fbe87f6e1b4edd7257dad3e61940a90892bcb153c2938d"
+  },
+  ".gitignore": {
+    "size_bytes": 180,
+    "sha256": "3185ba6fa865bbb64b6b1868f768f5f10309e8e9b1c0bde0a6921834203282d6"
+  },
+  "AGENTS.md": {
+    "size_bytes": 2445,
+    "sha256": "51f426cf2a9261d995164200d8df1ce5079775015f9a2ddadf0a65b9721604af"
+  },
+  "README.md": {
+    "size_bytes": 3829,
+    "sha256": "ea0ab6e41f88ece0820e11af5ba24ac2f701a14002d25f30eb8710d4586673e0"
+  },
+  "contracts/scenario-view.schema.json": {
+    "size_bytes": 1546,
+    "sha256": "e867183fee7c558a044078a91b5c930c042cda0e5f6ba3914f135642214f798c"
+  },
+  "contracts/study-manifest.schema.json": {
+    "size_bytes": 2913,
+    "sha256": "f7321e5c4d6b11450ebaebdb367d66f322174edba3159660b717eda15025be3f"
+  },
+  "design/prototype.css": {
+    "size_bytes": 9121,
+    "sha256": "1aee430745c2335ffe068ae28ec35580c983e7deded7f153bb4e4f00f4b30216"
+  },
+  "design/prototype.html": {
+    "size_bytes": 8118,
+    "sha256": "31a2246453e1fc1e0662cc1380ceb6b0122550f66d71fa3962b5717fe1c5cbee"
+  },
+  "design/prototype.js": {
+    "size_bytes": 3745,
+    "sha256": "28dde5f77a2c6a4fe03bd7788449ae9419552b26f72ff857ec5a0a7591ac4210"
+  },
+  "design/tokens.json": {
+    "size_bytes": 748,
+    "sha256": "2a33b85e6c6b6d63c4ba065209569d41946564c89cbc14e856a0fa365dee4774"
+  },
+  "docs/01-product-spec.md": {
+    "size_bytes": 4256,
+    "sha256": "715907557241c3c712fd708f22a19379cf43cdeb60d943c4d962de5179b1d23a"
+  },
+  "docs/02-information-architecture.md": {
+    "size_bytes": 4659,
+    "sha256": "c98c22d7eac7995a300b591a7774234bc89938ab662754bea9b7a10ffc67415f"
+  },
+  "docs/03-design-system.md": {
+    "size_bytes": 3834,
+    "sha256": "1f8043a61a4aafe0728f9db3907107bb01b69c08a2d5de9f3f859901340fc5ad"
+  },
+  "docs/04-architecture.md": {
+    "size_bytes": 5398,
+    "sha256": "77f6bc037dc02313db0c937e26ead9abc71d22abcc99c5bf3bb245c20892fefe"
+  },
+  "docs/05-science-data-contract.md": {
+    "size_bytes": 5281,
+    "sha256": "3d0e912660be1aeba299d46c067ef5c5e62ed2018e0cad83d5643ed11ec418b7"
+  },
+  "docs/06-migration-plan.md": {
+    "size_bytes": 4468,
+    "sha256": "61e41ee0ca1a3496ab69ec33b1a8ae12151d454b0c270410c20283194bdc807a"
+  },
+  "docs/07-test-plan.md": {
+    "size_bytes": 3757,
+    "sha256": "ea6817c1b3ced0d48ae1480afbcd1ce4188efa7c73c644d76968190daf5dc1ee"
+  },
+  "docs/08-milestones.md": {
+    "size_bytes": 3283,
+    "sha256": "3c9fc05ed0f30666750f4953d0ed3dd23aa020bc2ab7ef37217518750688b8da"
+  },
+  "docs/09-decisions.md": {
+    "size_bytes": 2840,
+    "sha256": "1db9f7a699c5653b0c7babe375109e58a20fa211b50553b0add5c28bf15620bd"
+  },
+  "docs/10-risk-register.md": {
+    "size_bytes": 2145,
+    "sha256": "9e9fb90c3de99519d081cf66c5f260c5de53e8a1289c8b4b92937f5bf7b06977"
+  },
+  "docs/11-github-setup.md": {
+    "size_bytes": 3058,
+    "sha256": "5e1e9443a563abd185f450e6e8dd63fcd789424cc21c01dbf9fa56e73f6dc6d8"
+  },
+  "docs/12-acceptance-matrix.md": {
+    "size_bytes": 1962,
+    "sha256": "e4de5de10938e5e10cfa152e26bbd575242a082e8b7644afad37f9bf88eb4525"
+  },
+  "docs/13-source-attribution.md": {
+    "size_bytes": 1819,
+    "sha256": "aefab39696fffbceef61a15db42cdd7ff4f12750c9d14c9f6a50c888212180cd"
+  },
+  "package.json": {
+    "size_bytes": 346,
+    "sha256": "0388222a895e3f7cf7efa31c7dcd9417a8b505c8b70a2f65cc2e6d87b0f12f3e"
+  },
+  "tests/design.test.mjs": {
+    "size_bytes": 2718,
+    "sha256": "0eedf2fda3452213f7eff2678d669494bf955ef8b2e2c8ed3decde3b9d831ba1"
+  },
+  "tools/validate-design.mjs": {
+    "size_bytes": 2251,
+    "sha256": "a6b72ff64020223126142d09a641317af37f1a2fb6a0be16e2ee97ca64b83da2"
+  }
+}
