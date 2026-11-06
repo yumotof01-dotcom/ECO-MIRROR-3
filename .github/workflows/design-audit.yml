@@ -1,0 +1,22 @@
+name: ECO MIRROR 3 design audit
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  check-design-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Validate design documents and proposed contracts
+        run: npm run design:check
+      - name: Run design-only tests (NOT research computation tests)
+        run: npm test
+      - name: Check JS prototype syntax
+        run: node --check design/prototype.js
