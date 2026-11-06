@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>ECO MIRROR 3.0｜UI設計プロトタイプ</title>
+  <meta name="description" content="ECO MIRROR 3.0のUI設計確認用。研究データとシミュレーションは未接続です。" />
+  <link rel="stylesheet" href="./prototype.css" />
+  <script src="./prototype.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#map-stage">主な内容へ移動</a>
+  <div class="page-shell">
+    <header class="topbar">
+      <div class="identity">
+        <span class="identity-mark" aria-hidden="true">◈</span>
+        <div><strong>ECO MIRROR</strong><span class="subbrand">3.0 · LANDSCAPE OBSERVATORY</span></div>
+      </div>
+      <div class="top-actions">
+        <span class="design-pill">DESIGN PROTOTYPE</span>
+        <a class="header-link" href="#evidence">研究の根拠・限界を見る <span aria-hidden="true">↗</span></a>
+      </div>
+    </header>
+
+    <section class="study-band" aria-label="研究データの状態">
+      <div class="band-heading"><span class="overline">RESEARCH CONTEXT</span><h1>自然のつながりを、見る。試す。確かめる。</h1></div>
+      <div class="region-picker"><label for="region">研究地域（選択の体験のみ）</label><select id="region">
+        <option value="shinjuku">東京・新宿御苑周辺</option><option value="osaka">大阪城周辺</option>
+        <option value="nagoya">名古屋城周辺</option><option value="fukuoka">福岡・大濠公園周辺</option>
+        <option value="sapporo">札幌・円山公園周辺</option><option value="odaiba">東京・お台場周辺</option>
+      </select></div>
+      <div class="source-status"><span class="yellow-dot" aria-hidden="true"></span><div><strong>2021 · LAND COVER</strong><span>実データは未接続</span></div></div>
+    </section>
+
+    <div class="workbench">
+      <nav class="navigation" aria-label="研究モード">
+        <p class="overline">FOUR RESEARCH LENSES</p>
+        <div class="mode-tabs" role="tablist" aria-label="研究モード切替">
+          <button id="tab-connectivity" role="tab" aria-selected="true" aria-controls="details-panel" tabindex="0" data-mode="connectivity"><span class="tab-number">01</span><span>つながりを読む<small>LANDSCAPE</small></span></button>
+          <button id="tab-scenario" role="tab" aria-selected="false" aria-controls="details-panel" tabindex="-1" data-mode="scenario"><span class="tab-number">02</span><span>条件を試す<small>440 CONDITIONS</small></span></button>
+          <button id="tab-threshold" role="tab" aria-selected="false" aria-controls="details-panel" tabindex="-1" data-mode="threshold"><span class="tab-number">03</span><span>急変区間を調べる<small>MODEL SENSITIVITY</small></span></button>
+          <button id="tab-bridge" role="tab" aria-selected="false" aria-controls="details-panel" tabindex="-1" data-mode="bridge"><span class="tab-number">04</span><span>自然の橋を比較<small>CONNECTIVITY CHANGE</small></span></button>
+        </div>
+        <div class="research-note"><span class="note-line"></span><p><strong>科学的な慎重さも、デザインの一部。</strong>地図上の関係は、生物が実際に移動した経路ではありません。</p></div>
+      </nav>
+
+      <main id="map-stage" class="map-stage" tabindex="-1" aria-labelledby="map-title">
+        <div class="map-top"><div><span class="overline">LANDSCAPE FIELD</span><h2 id="map-title">構造的なつながり</h2></div><span class="sample-label">概念図 · 実在の地図ではありません</span></div>
+        <div class="concept-map" aria-label="装飾的な地図の見た目の試作。土地被覆の実測データや実際の動物の移動を示していません。">
+          <svg class="decorative-network" viewBox="0 0 900 560" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+            <defs><radialGradient id="glow"><stop offset="0" stop-color="#69D2A6" stop-opacity=".21"/><stop offset="1" stop-color="#69D2A6" stop-opacity="0"/></radialGradient></defs>
+            <circle cx="445" cy="265" r="340" fill="url(#glow)" />
+            <g class="landmass" fill="#235C48" stroke="#5FB994" stroke-width="1.5" opacity=".7">
+              <path d="M65 100Q135 40 203 110L195 205Q130 240 70 183Z" />
+              <path d="M605 110Q690 44 770 118L805 216Q740 273 662 226Z" />
+              <path d="M342 332Q412 252 520 320L547 410Q450 478 352 431Z" />
+              <path d="M90 405Q143 362 205 404L216 480Q135 521 78 462Z" />
+              <path d="M708 408Q751 361 814 399L825 492Q751 510 698 469Z" />
+            </g>
+            <g stroke="#8EC5E8" stroke-width="2" stroke-dasharray="7 10" fill="none" opacity=".7"><path d="M155 156Q351 42 697 172"/><path d="M155 156Q223 291 434 375"/><path d="M434 375Q593 334 745 433"/><path d="M697 172Q664 322 745 433"/></g>
+            <g fill="#C4F2D9" stroke="#0A1518" stroke-width="4"><circle cx="155" cy="156" r="10"/><circle cx="697" cy="172" r="10"/><circle cx="434" cy="375" r="10"/><circle cx="745" cy="433" r="10"/></g>
+          </svg>
+          <div class="map-message"><span class="overline">DATA CONNECTION REQUIRED</span><strong>研究データは、まだ接続していません。</strong><p>この画面は操作の設計用。地図、PC、候補順位の実測値や計算結果は一切表示していません。</p></div>
+          <div class="map-legend"><span><i class="legend-square" aria-hidden="true"></i>装飾上の緑地</span><span><i class="legend-dash" aria-hidden="true"></i>仮想のつながり</span></div>
+        </div>
+        <div class="map-foot"><span>データ状態：<strong>未接続</strong></span><span>将来の計算モデル：構造的PC（生物学的な移動は未実証）</span></div>
+      </main>
+
+      <aside class="inspector" id="details-panel" role="tabpanel" aria-labelledby="tab-connectivity" tabindex="0">
+        <span class="overline">MODE INSPECTOR</span>
+        <h2 id="pane-title">つながりを読む</h2>
+        <p id="pane-description">地図上で植生候補と緑地パッチを調べる。現在表示しているのは画面の設計案です。</p>
+        <div class="micro-heading">このモードで確認すること</div>
+        <ul id="pane-list"><li>土地被覆の分類とその年</li><li>4近傍・8近傍の違い</li><li>出典・欠測・未検証の区別</li></ul>
+        <div class="parameter-card"><span class="overline">CALCULATION STATUS</span><strong>未接続</strong><p>計算データが入るまで、値のグラフや候補ランキングを作りません。</p></div>
+        <div class="micro-heading">実験パラメータ（表示だけ）</div>
+        <label class="disabled-label" for="example-range">植生減少率 <span>計算未接続</span></label>
+        <input id="example-range" type="range" min="0" max="50" value="0" disabled aria-describedby="disabled-reason" />
+        <p id="disabled-reason" class="small-explainer">研究結果を正しく接続した後に有効化します。</p>
+        <button class="primary" type="button" disabled>正式な研究結果を表示（未実装）</button>
+        <p class="small-explainer">研究用計算エンジンと本アプリの接続は次の実装工程です。</p>
+      </aside>
+    </div>
+
+    <footer id="evidence" class="evidence"><div><span class="overline">RESEARCH INTEGRITY</span><h2>データを「使う前」に、根拠を示す。</h2></div><div class="evidence-points"><span>ESA WorldCover 2021 v200</span><span>CC BY 4.0</span><span>動植物の実測ではない</span><span>モデル上の仮想実験</span></div><p>このページはデザイン専用プロトタイプ。新ECO MIRROR 3.0の研究コードと実データは未接続。実装後は地図の出典・派生SHA256・研究ID・不確実性を参照できるようにします。</p></footer>
+  </div>
+</body>
+</html>
