@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { StudyDataAuditPanel } from "./StudyDataAuditPanel.tsx";
 import {
   loadVerifiedStudyRegion, StudyIntegrityError,
@@ -38,9 +38,9 @@ describe("Phase 3 independent verified data status UI",()=>{
   });
 
   it("fails explicitly and does not show zero or stale verified figures",async()=>{
-    mock.mockRejectedValue(new StudyIntegrityError("HASH_MISMATCH","Test: data was changed"));
+    mock.mockImplementationOnce(async()=>{throw new StudyIntegrityError("HASH_MISMATCH","Test: data was changed");});
     render(<StudyDataAuditPanel />);
-    fireEvent.click(screen.getByRole("button",{name:/選択した地域のデータを検証/}));
+    await act(async()=>{fireEvent.click(screen.getByRole("button",{name:/選択した地域のデータを検証/}));});
     expect(await screen.findByText(/検証失敗/)).toBeInTheDocument();
     expect(screen.getByText(/HASH_MISMATCH/)).toBeInTheDocument();
     expect(screen.queryByText("440 / 440")).not.toBeInTheDocument();
@@ -53,10 +53,10 @@ describe("Phase 3 independent verified data status UI",()=>{
     mock.mockResolvedValueOnce(syntheticVerified("odaiba"));
     render(<StudyDataAuditPanel />);
     fireEvent.click(screen.getByRole("button",{name:/選択した地域のデータを検証/}));
-    expect(screen.getByText(/検証中/)).toBeInTheDocument();
+    expect(within(screen.getByRole("status")).getByText("検証中")).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("データ確認地域"),{target:{value:"odaiba"}});
-    completeOld(syntheticVerified("shinjuku"));
+    await act(async()=>{completeOld(syntheticVerified("shinjuku"));});
     expect(screen.getByText(/未取得/)).toBeInTheDocument();
     await waitFor(()=>expect(screen.queryByText(/SHA-256検証成功/)).not.toBeInTheDocument());
 
