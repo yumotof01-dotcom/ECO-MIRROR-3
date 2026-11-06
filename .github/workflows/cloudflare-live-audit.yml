@@ -1,0 +1,18 @@
+name: Cloudflare public deployment diagnosis
+on:
+  push:
+    branches: [feat/phase1-react-app-shell-2026-11]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect-public-site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Check actual live HTML and bundle URLs (no secrets or Cloudflare token)
+        run: node scripts/probe-cloudflare.mjs

@@ -1,0 +1,50 @@
+name: Deploy ECO MIRROR 3.0 to GitHub Pages
+
+# GitHub Pages release is parked while Cloudflare Pages is the deployment target.
+# Retain the manual workflow for possible future recovery, without failing on every push.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: eco-mirror-3-pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Fetch the exact app commit
+        uses: actions/checkout@v4
+      - name: Use Node.js 24 and npm lockfile
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install exact dependencies
+        run: npm ci
+      - name: Validate source, UI tests, and scientific empty-state contract
+        run: npm run check
+      - name: Build for the /ECO-MIRROR-3/ GitHub Pages subpath
+        env:
+          GITHUB_PAGES_DEPLOY: 'true'
+        run: |
+          npm run build
+          node scripts/assert-pages-build.mjs
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload only the compiled app
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+      - name: Publish the reviewed build to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

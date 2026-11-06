@@ -1,4 +1,4 @@
-name: ECO MIRROR 3 design audit
+name: ECO MIRROR 3 phase-1 app and design audit
 on:
   pull_request:
   push:
@@ -6,17 +6,36 @@ on:
 permissions:
   contents: read
 jobs:
-  check-design-only:
+  app-shell-and-design:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Validate design documents and proposed contracts
-        run: npm run design:check
-      - name: Run design-only tests (NOT research computation tests)
-        run: npm test
-      - name: Check JS prototype syntax
+          cache: npm
+      - name: Install pinned React/TypeScript dependencies
+        run: npm ci
+      - name: Validate design contract and React shell tests
+        run: npm run design:check && npm test
+      - name: Verify TypeScript and build production static bundle
+        run: npm run build
+      - name: Verify compiled assets for Cloudflare Pages root URL
+        run: node scripts/assert-cloudflare-build.mjs
+      - name: Smoke-test built SPA over local HTTP
+        shell: bash
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 --strictPort >/tmp/eco3-preview.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for attempt in {1..20}; do
+            if curl -fsS http://127.0.0.1:4173/ -o /tmp/eco3-home.html; then break; fi
+            sleep 1
+          done
+          grep -q 'id="root"' /tmp/eco3-home.html
+          for route in explore evidence; do
+            curl -fsS "http://127.0.0.1:4173/$route" | grep -q 'id="root"'
+          done
+      - name: Keep design prototype syntax valid
         run: node --check design/prototype.js

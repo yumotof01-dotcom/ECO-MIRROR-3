@@ -2,7 +2,7 @@
 
 > 自然のつながりを、見る。試す。確かめる。
 
-**状態：新アプリの設計基盤 v0.1（2026-11-06）。実装済みの研究エンジンや実データは、この新しいフォルダーにはまだ移植していません。**
+**状態：新アプリ第1工程のReact/TypeScript/Viteアプリ骨格（2026-11-06）。第0工程の設計基盤v0.1も維持。実装済みの研究エンジンや実データは、この新しいフォルダーにはまだ移植していません。**
 
 ECO MIRROR 3.0 は、公開土地被覆データと再現可能な数理計算をもとに、緑地の構造的なつながりを調べ、仮想的な環境変化や植生追加の効果を比較する独立したWebアプリです。生成AIを完成アプリの実行に組み込まず、追加の有料APIを必須としません。
 
@@ -24,6 +24,54 @@ ECO MIRROR 3.0 は、公開土地被覆データと再現可能な数理計算�
 6. [旧コードの移植計画](docs/06-migration-plan.md)
 7. [品質保証・ロードマップ](docs/07-test-plan.md) / [工程表](docs/08-milestones.md)
 8. [設計判断](docs/09-decisions.md) / [リスク](docs/10-risk-register.md)
+
+## 実際に起動する新アプリ（第1工程）
+
+Node.js **24.12以上** とnpmを使用します。旧研究のコードや有料APIキーは不要です。
+
+```bash
+npm ci
+npm run dev
+```
+
+表示されたローカルURL（通常 http://127.0.0.1:5173/ ）を開きます。
+
+- `/`：独立したホームと研究の目的
+- `/explore`：Reactで動く4モード切替・6地域の選択・キーボード操作
+- `/evidence`：出典と科学的な注意事項
+- 未知のURL：明示的な404ページ
+
+**第1工程の計算は未接続です。** アプリ側の地図は装飾的な概念図で、正式な土地被覆・PC・生物の移動を表示しません。
+第2工程で固定済みの旧研究エンジンを移植し、数値照合してから研究機能を有効化します。
+第1工程ができたことは研究エンジンの移植や公開Webアプリの完成ではありません。
+
+```bash
+npm run design:check
+npm test
+npm run build
+npm run preview
+```
+
+`npm test`は従来の設計テストに加えて、Reactの画面切替・地域の未接続表示・キーボード操作・根拠表示を確認します。
+`npm run build`はTypeScriptの検査とViteの静的バンドル出力です。
+GitHub上でのPublic化はWebアプリのホスティングとは別で、本番公開はまだ行っていません。
+
+`FILE_MANIFEST_SHA256.json`は**第0工程の最初の設計ファイルアップロード時点の記録**で、現在のブランチすべてのファイルを列挙するライブマニフェストではありません。
+
+## Webサイトの公開：Cloudflare Pagesに接続済み（ビルド設定の修正が必要）
+
+公開対象は新アプリ第1工程のReact UI。**実際の生態学的データ・計算はまだ未接続**。
+
+GitHub Pagesはソース設定保存後も実行前にジョブが失敗し、原因の詳細を取得できないため、Cloudflare Pagesへ切り替えました。GitHub Pagesのデプロイワークフローは自動実行を停止して保管しています。
+
+- Cloudflare公式Git連携を使い、**ECO-MIRROR-3** リポジトリを選択する。
+- **Production branch：`feat/phase1-react-app-shell-2026-11`**（重要：今はmainではない）。
+- **Build command：`npm run build` / Build output：`dist`**。
+- **Node.js：`24.22.1`**（`.node-version`ファイルで固定）。
+- `GITHUB_PAGES_DEPLOY`環境変数は設定しない。
+- **現状は白画面で未公開相当。** 外部検証では通常サイトがHTTP 404、ブランチのプレビューはソースの未変換`index.html`を返していた（`/src/main.tsx`への直接参照）。Cloudflareで`npm run build`、出力先`dist`、Production branchの設定を修正してから再デプロイする。
+
+iPadでの具体的な操作方法は[Cloudflare Pages公開手順](docs/16-cloudflare-pages-release.md)。旧版の研究コードは変更していません。
 
 ## 見られるもの
 
