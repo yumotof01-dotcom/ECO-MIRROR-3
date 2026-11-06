@@ -39,3 +39,9 @@
 - GitHub Pagesに設置するのはコンパイル済みの `dist` だけ。リポジトリ内の研究用未完成JSONやローカル秘密情報は配布しない。
 
 出典：Vite公式ドキュメント https://vite.dev/guide/static-deploy.html および GitHub公式ActionsのPagesドキュメント。
+
+## 初回設定の確認記録（2026-11-06）
+
+GitHubの設定画面で「GitHub Pages source saved.」が表示され、Build and deployment の Source が GitHub Actions になっていることを確認した。設定画面上で確認できたのは**公開方法の保存**であり、サイトの実際の公開成功ではない。
+
+設定保存後のワークフロー再実行は**failure**で終了。再実行のジョブ詳細ログをAPIから取得できていないため、以前の404が同じ理由で発生したと断定しない。新しいpushで再検証し、それでも失敗した場合はGitHub Actionsの「build-and-deploy」ジョブの最初のエラー表示を調べる。
