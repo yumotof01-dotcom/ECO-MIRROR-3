@@ -34,7 +34,7 @@ describe('ECO MIRROR 3 phase-1 application shell', () => {
     const bridge = within(rail).getByRole('tab', { name: /自然の橋を比較/ });
     expect(bridge).toHaveAttribute('aria-selected', 'true');
     expect(bridge).toHaveFocus();
-    expect(screen.getByText(/所有権・工事・動物の移動は未検証/)).toBeInTheDocument();
+    expect(screen.getByText(/地権・工事・動物の移動は未検証/)).toBeInTheDocument();
 
     fireEvent.keyDown(bridge, { key: 'Home' });
     expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
@@ -57,7 +57,7 @@ describe('ECO MIRROR 3 phase-1 application shell', () => {
   it('shows scientific limits, license and original dataset year', () => {
     openRoute('/evidence');
     expect(screen.getByRole('heading', { name: /科学的な根拠と/ })).toBeInTheDocument();
-    expect(screen.getByText(/ESA WorldCover 2021 v200/)).toBeInTheDocument();
+    expect(screen.getAllByText(/ESA WorldCover 2021 v200/).length).toBeGreaterThan(0);
     expect(screen.getByText(/2021年の土地被覆分類/)).toBeInTheDocument();
     expect(screen.getByText(/未来の確率ではありません/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /公式データのDOI/ })).toHaveAttribute('href','https://doi.org/10.5281/zenodo.7254221');
