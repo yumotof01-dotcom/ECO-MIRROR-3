@@ -1,0 +1,45 @@
+name: Pre-UI export replay and browser compatibility
+on:
+  pull_request:
+    paths:
+      - 'src/research/**'
+      - 'src/studies/**'
+      - 'scripts/research/**'
+      - 'public/studies/**'
+      - 'vite*.config.ts'
+      - 'package*.json'
+      - '.github/workflows/pre-ui-integration.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build && npm run research:build
+      - name: Install pinned test tooling only
+        run: npm install --no-save --package-lock=false playwright@1.62.1
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Run built export/replay, failures, keyboard, viewport and memory checks
+        env:
+          RESEARCH_BROWSER: ${{ matrix.browser }}
+        run: npm run research:integration
+      - name: Archive actual browser/viewport and scoped memory evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pre-ui-integration-${{ matrix.browser }}
+          path: .artifacts/research-integration-*.json
+          if-no-files-found: ignore
+          retention-days: 14
