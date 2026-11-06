@@ -25,6 +25,14 @@ jobs:
       - run: npm ci
       - name: Audit all static resources and all research views/map frames
         run: npm run research:audit
+      - name: Retain all 1000 individual case outcomes, including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stress-1000-case-ledger
+          path: .artifacts/stress-1000.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Compile public app and independent worker integration library
         run: npm run build && npm run research:build
       - name: Independently validate built exports against the JSON Schema
