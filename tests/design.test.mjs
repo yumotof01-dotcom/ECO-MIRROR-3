@@ -5,11 +5,12 @@ import { resolve } from 'node:path';
 const root = resolve(import.meta.dirname, '..');
 async function read(relative) {return readFile(resolve(root,relative),'utf8');}
 
-test('README distinguishes imported research CLI from unconnected browser science', async()=>{
+test('README distinguishes verified data preparation from unfinished product UI', async()=>{
   const readme=await read('README.md');
   assert.match(readme,/設計基盤/);
   assert.match(readme,/旧研究エンジン原本移植と実データ一致検証に成功/);
-  assert.match(readme,/2021年の研究データはまだWeb画面へ接続・静的配信していません/);
+  assert.match(readme,/正式な探索地図、440条件比較、自然の橋の操作画面は未接続/);
+  assert.match(readme,/第3工程の静的研究パッケージ/);
   assert.match(readme,/yumotof01-dotcom\/ECO-MIRROR-3/);
   assert.match(readme,/研究CLIが動くことは、ブラウザで実データを操作できることや、生物学的な妥当性の証明を意味しません/);
 });

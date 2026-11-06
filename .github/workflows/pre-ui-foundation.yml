@@ -1,0 +1,34 @@
+name: Pre-UI foundation and bundled worker audit
+on:
+  pull_request:
+    paths:
+      - 'src/research/**'
+      - 'src/studies/**'
+      - 'public/studies/**'
+      - 'scripts/research/**'
+      - 'vite.research.config.ts'
+      - 'package*.json'
+      - '.github/workflows/pre-ui-foundation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verified-foundation-and-worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Audit all static resources and all research views/map frames
+        run: npm run research:audit
+      - name: Compile public app and independent worker integration library
+        run: npm run build && npm run research:build
+      - name: Install isolated browser test tooling without changing app dependencies
+        run: npm install --no-save --package-lock=false playwright@1.62.1
+      - run: npx playwright install --with-deps chromium
+      - name: Exercise real module workers, six regions, cancellation and missing-worker failure
+        run: npm run research:browser
