@@ -71,7 +71,7 @@ function fixture() {
     {...define("regions/shinjuku/bridges-summary.json",bridges),kind:"bridges-summary"},
     ...sites.map((s,i)=>({
       ...define(`regions/shinjuku/sites/${s.site.id}.json`,i===0?siteResults:{placeholder:true}),
-      kind:"site",siteId:s.site.id
+      kind:"site" as const,siteId:s.site.id
     }))
   ];
   const manifest:StudyIndex={
