@@ -3,7 +3,7 @@ import { createHash, webcrypto } from "node:crypto";
 import { enumerateConditions } from "../features/landscape/scenarios/engine.ts";
 import {
   loadStudyIndex, loadVerifiedStudyRegion, loadVerifiedInterventionSite,
-  type StudyIndex
+  type StudyIndex, type StudyResource
 } from "./verifiedStudyLoader.ts";
 
 const names=["shinjuku","osaka","nagoya","fukuoka","sapporo","odaiba"] as const;
@@ -65,7 +65,7 @@ function fixture() {
     files.set(root+path,text);
     return {path,bytes:new TextEncoder().encode(text).length,sha256:sha(text)};
   };
-  const sampleResources=[
+  const sampleResources:StudyResource[]=[
     {...define("regions/shinjuku/crop.json",crop),kind:"crop"},
     {...define("regions/shinjuku/baseline.json",baseline),kind:"baseline"},
     {...define("regions/shinjuku/bridges-summary.json",bridges),kind:"bridges-summary"},
