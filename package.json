@@ -14,7 +14,10 @@
     "test": "node --test tests/*.test.mjs && vitest run",
     "test:design": "node --test tests/*.test.mjs",
     "design:check": "node tools/validate-design.mjs",
-    "check": "npm run design:check && npm test && npm run build"
+    "check": "npm run design:check && npm test && npm run build",
+    "research:build": "vite build --config vite.research.config.ts",
+    "research:browser": "node scripts/research/smoke-browser.mjs",
+    "research:audit": "node scripts/landscape/audit-static-packages.mjs && vitest run src/research/foundation.test.ts"
   },
   "dependencies": {
     "react": "19.3.1",

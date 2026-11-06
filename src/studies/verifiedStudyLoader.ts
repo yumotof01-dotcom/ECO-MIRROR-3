@@ -130,7 +130,11 @@ function resourceRoot(options:StudyLoadOptions):string {
 async function getBytes(url:string,fetcher:typeof fetch,signal:AbortSignal|undefined,max:number):Promise<Uint8Array> {
   let response:Response;
   try { response=await fetcher(url,{signal,cache:"no-store"}); }
-  catch(error) { return invalid("NETWORK","Cannot request verified 2021 study resource: "+String(error)); }
+  catch(error) {
+    if(error instanceof StudyIntegrityError)throw error;
+    if(signal?.aborted)throw new DOMException("Study request cancelled","AbortError");
+    return invalid("NETWORK","Cannot request verified 2021 study resource: "+String(error));
+  }
   if(!response.ok) return invalid("MISSING_RESOURCE","Study resource unavailable (HTTP "+response.status+").");
   let bytes:Uint8Array;
   try { bytes=new Uint8Array(await response.arrayBuffer()); }
