@@ -3,7 +3,8 @@ const urls = [
   "https://e0542378.eco-mirror-3.pages.dev/",
   "https://eco-mirror-3.pages.dev/",
   "https://ca35856a.eco-mirror-3.pages.dev/",
-  "https://feat-phase1-react-app-shell.eco-mirror-3.pages.dev/"
+  "https://feat-phase1-react-app-shell.eco-mirror-3.pages.dev/",
+  "https://c3237a8c.eco-mirror-3.pages.dev/"
 ];
 for (const url of urls) {
   console.log("\nREMOTE_URL", url);
