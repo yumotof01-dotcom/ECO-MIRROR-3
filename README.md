@@ -58,6 +58,20 @@ GitHub上でのPublic化はWebアプリのホスティングとは別で、本�
 
 `FILE_MANIFEST_SHA256.json`は**第0工程の最初の設計ファイルアップロード時点の記録**で、現在のブランチすべてのファイルを列挙するライブマニフェストではありません。
 
+## GitHub Pagesの公開（設定待ち）
+
+第1工程のWebサイト公開用に `.github/workflows/deploy-pages.yml` を追加しました。
+
+**現時点では公開完了ではありません。** GitHub Pagesの設定が未有効であり、自動デプロイの最初の試行は「Get Pages site failed」で停止しました。
+
+- [Pagesの設定](https://github.com/yumotof01-dotcom/ECO-MIRROR-3/settings/pages) → **Build and deployment → Source → GitHub Actions** を選ぶ。
+- 設定後にActionsの **Deploy ECO MIRROR 3.0 to GitHub Pages** を作業ブランチから実行する。
+- デプロイ成功後のサイトURL：**https://yumotof01-dotcom.github.io/ECO-MIRROR-3/**
+- 直接リンク：`#/explore`（探索）・`#/evidence`（根拠）。GitHub PagesではHashRouterを用い、URLを再読込しても404にならない。
+- 初期公開は研究データが未接続の**第1工程UIのみ**。正式な数理計算や生物移動の結果を示さない。
+
+詳細は [Pages公開手順・検証](docs/15-github-pages-release.md)。公開リポジトリと公開サイトは別の設定です。
+
 ## 見られるもの
 
 - `design/prototype.html` — **デザイン確認専用**の静的ワイヤーフレーム。実データ・シミュレーションは接続していません。
