@@ -52,6 +52,11 @@ try {
     await tabs.nth(3).click();
     await page.getByText('候補の計算結果を検証しました。', { exact: true }).waitFor();
     assert.equal(await page.getByRole('table', { name: '選択条件での追加前後' }).count(), 1);
+    await page.getByLabel('仮想植生減少率', { exact: true }).fill('50');
+    await page.getByLabel('仮想植生減少率', { exact: true }).fill('10');
+    await page.getByText('地図の準備ができました。', { exact: true }).waitFor();
+    const finalCondition = baseline.ensemble.conditions.find(row => row.scenarioId === 'distributed-n4-lambda200-loss10');
+    assert.equal(await page.locator('.research-metrics dd').first().innerText(), number(finalCondition.pc));
     await page.getByLabel('研究地域', { exact: true }).selectOption('odaiba');
     assert.equal(await page.locator('canvas').count(), 0);
     assert.equal(await page.locator('.research-metrics').count(), 0);

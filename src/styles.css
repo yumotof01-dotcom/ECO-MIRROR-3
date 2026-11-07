@@ -266,3 +266,11 @@ body { background: #eef1e8 url('./glass/observation.webp') center / cover fixed;
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+.not-found, .study-audit-status, .study-audit-field select { background: #f3f6eb; }
+.mode-tabs button:hover { background: #e0ead8; }
+.action-link, .study-audit-button { background-color: #dbe8d2; color: #183c30; }
+.study-audit-status .audit-error, .audit-error strong { color: #9b2e25; }
+.study-audit-status .audit-success, .audit-success strong, .audit-provenance code { color: #285f3a; }
+@media (forced-colors: active) {
+  .research-view button, .research-view select, .result-panel { background-image: none; }
+}
