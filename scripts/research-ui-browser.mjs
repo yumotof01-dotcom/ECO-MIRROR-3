@@ -29,6 +29,7 @@ try {
     await page.getByRole('link', { name: /研究ワークスペースへ/ }).click();
     const tabs = page.getByRole('tab');
     await tabs.nth(0).focus(); await page.keyboard.press('ArrowRight');
+    await page.locator('#tab-scenario[aria-selected="true"]').waitFor();
     assert.equal(await tabs.nth(1).getAttribute('aria-selected'), 'true');
     await page.getByRole('button', { name: '地域データを読み込む', exact: true }).click();
     await page.getByText('地図の準備ができました。', { exact: true }).waitFor();
@@ -46,6 +47,7 @@ try {
     assert.equal(saved.payload.result.pc, expected.pc);
     assert.equal(saved.payload.provenance.regionId, 'shinjuku');
     await tabs.nth(2).click();
+    await page.locator('#tab-threshold[aria-selected="true"]').waitFor();
     assert.equal(await page.getByRole('table', { name: '同じ規則・近傍・λでの11条件' }).locator('tbody tr').count(), 11);
     await page.screenshot({ path: `.artifacts/ui/research-${width}.png`, fullPage: true });
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
