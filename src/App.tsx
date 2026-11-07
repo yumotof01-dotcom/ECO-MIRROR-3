@@ -1,5 +1,7 @@
 import { useRef, useState, type KeyboardEvent } from 'react';
 import { Link, NavLink, Route, Routes } from 'react-router-dom';
+import { ResearchView } from './ResearchView.tsx';
+import type { RegionId } from './studies/verifiedStudyLoader.ts';
 import { StudyDataAuditPanel } from './studies/StudyDataAuditPanel.tsx';
 
 type Mode = 'connectivity' | 'scenario' | 'threshold' | 'bridge';
@@ -16,7 +18,7 @@ const MODES: { id: Mode; number: string; name: string; en: string; headline: str
   {
     id: 'connectivity', number: '01', name: 'つながりを読む', en: 'LANDSCAPE',
     headline: '構造的なつながり',
-    description: '土地被覆データをもとに、植生候補と緑地パッチを調べる研究モード。新アプリには研究データが未接続のため、現在は使い方と確認項目を表示しています。',
+    description: '土地被覆データをもとに、植生候補と緑地パッチを調べる研究モード。研究データを読み込み、植生候補の面積と緑地パッチを確認できます。',
     checklist: ['元の土地被覆分類・観測年', '4近傍・8近傍でのパッチ抽出', '出典、欠測、推定と未実証の区別']
   },
   {
@@ -60,7 +62,7 @@ function Shell() {
             <NavLink to="/explore">探索する</NavLink>
             <NavLink to="/evidence">研究の根拠</NavLink>
           </nav>
-          <span className="design-pill">PHASE 1 · APP SHELL</span>
+          <span className="design-pill">LANDSCAPE STUDY</span>
         </header>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -70,7 +72,7 @@ function Shell() {
         </Routes>
         <footer className="site-footer">
           <span>© ECO MIRROR 3.0 · 新アプリ基盤</span>
-          <span>ESA WorldCover 2021 v200 · データ未接続 · 生物学的な移動は未実証</span>
+          <span>ESA WorldCover 2021 v200 · 6地域の構造モデル · 生物学的な移動は未実証</span>
         </footer>
       </div>
     </>
@@ -89,7 +91,7 @@ function Home() {
             <Link className="action-link" to="/explore">研究ワークスペースへ <span aria-hidden="true">↗</span></Link>
             <Link className="subtle-link" to="/evidence">データの根拠と限界</Link>
           </div>
-          <p className="small-explainer home-disclaimer">現在は第1工程。研究計算エンジンと実地地図はまだ接続されていません。</p>
+          <p className="small-explainer home-disclaimer">2021年の土地被覆から、6地域の構造的なつながりを観察します。</p>
         </div>
       </section>
       <section className="home-overview" aria-label="4つの研究モード">
@@ -109,47 +111,11 @@ function Home() {
   );
 }
 
-function DecorativeMap() {
-  return (
-    <div className="concept-map">
-      <svg className="decorative-network" viewBox="0 0 900 560" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
-        <defs><radialGradient id="eco-halo"><stop offset="0" stopColor="#69D2A6" stopOpacity=".23" /><stop offset="1" stopColor="#69D2A6" stopOpacity="0" /></radialGradient></defs>
-        <circle cx="445" cy="265" r="350" fill="url(#eco-halo)" />
-        <g className="landmass" fill="#235C48" stroke="#5FB994" strokeWidth="1.5" opacity=".73">
-          <path d="M65 100Q135 40 203 110L195 205Q130 240 70 183Z" />
-          <path d="M605 110Q690 44 770 118L805 216Q740 273 662 226Z" />
-          <path d="M342 332Q412 252 520 320L547 410Q450 478 352 431Z" />
-          <path d="M90 405Q143 362 205 404L216 480Q135 521 78 462Z" />
-          <path d="M708 408Q751 361 814 399L825 492Q751 510 698 469Z" />
-        </g>
-        <g stroke="#8EC5E8" strokeWidth="2" strokeDasharray="7 10" fill="none" opacity=".68">
-          <path d="M155 156Q351 42 697 172" /><path d="M155 156Q223 291 434 375" />
-          <path d="M434 375Q593 334 745 433" /><path d="M697 172Q664 322 745 433" />
-        </g>
-        <g fill="#C4F2D9" stroke="#0A1518" strokeWidth="4">
-          <circle cx="155" cy="156" r="10" /><circle cx="697" cy="172" r="10" />
-          <circle cx="434" cy="375" r="10" /><circle cx="745" cy="433" r="10" />
-        </g>
-      </svg>
-      <div className="map-message" role="status">
-        <span className="overline">DATA NOT CONNECTED</span>
-        <strong>研究データは、まだ接続していません。</strong>
-        <p>背景は設計用の概念図で、実在する土地被覆・動植物の移動・計算値ではありません。</p>
-      </div>
-      <div className="map-legend" aria-label="概念図の凡例">
-        <span><i className="legend-square" aria-hidden="true" />装飾的な緑地</span>
-        <span><i className="legend-dash" aria-hidden="true" />装飾的な点線</span>
-      </div>
-    </div>
-  );
-}
-
 function Explore() {
   const [mode, setMode] = useState<Mode>('connectivity');
-  const [region, setRegion] = useState<string>('shinjuku');
+  const [region, setRegion] = useState<RegionId>('shinjuku');
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const active = MODES.find(m => m.id === mode)!;
-  const regionName = REGIONS.find(r => r.id === region)?.name ?? '';
   function handleTabs(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     let target: number;
     if (event.key === 'ArrowRight' || event.key === 'ArrowDown') target = (index + 1) % MODES.length;
@@ -169,17 +135,17 @@ function Explore() {
           <h1>自然のつながりを、見る。試す。確かめる。</h1>
         </div>
         <div className="region-picker">
-          <label htmlFor="region">研究地域（地図は未接続）</label>
-          <select id="region" value={region} onChange={event => setRegion(event.target.value)}>
+          <label htmlFor="region">研究地域</label>
+          <select id="region" value={region} onChange={event => setRegion(event.target.value as RegionId)}>
             {REGIONS.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
           </select>
         </div>
-        <div className="source-status" aria-label="研究計算は未接続">
+        <div className="source-status" aria-label="2021年の土地被覆データ">
           <span className="yellow-dot" aria-hidden="true" />
-          <div><strong>2021 · LAND COVER</strong><span>計算データ未接続</span></div>
+          <div><strong>2021 · LAND COVER</strong><span>6地域 · 固定研究条件</span></div>
         </div>
       </section>
-      <div className="workbench" id="main-content">
+      <div className="workbench transparent-workbench" id="main-content">
         <nav className="navigation" aria-label="研究モード">
           <p className="overline">FOUR RESEARCH LENSES</p>
           <div className="mode-tabs" role="tablist" aria-label="研究モードを切り替える">
@@ -199,23 +165,13 @@ function Explore() {
           </div>
           <div className="research-note"><span className="note-line" /><p><strong>科学的な慎重さも、デザインの一部。</strong>構造的なつながりは、実際の昆虫の移動経路ではありません。</p></div>
         </nav>
-        <main className="map-stage" tabIndex={-1} aria-labelledby="map-title">
-          <div className="map-top"><div><span className="overline">LANDSCAPE FIELD</span><h2 id="map-title">{active.headline}</h2></div><span className="sample-label">概念図 · 実在の地図ではありません</span></div>
-          <DecorativeMap />
-          <div className="map-foot">
-            <span>選択地域：<strong className="region-name">{regionName}</strong></span>
-            <span>データ状態：<strong>未接続</strong>・計算値は表示しません</span>
-          </div>
-        </main>
+        <ResearchView key={region} region={region} mode={mode} />
         <aside className="inspector" id="mode-panel" role="tabpanel" aria-labelledby={`tab-${mode}`} tabIndex={0}>
           <span className="overline">MODE INSPECTOR</span>
           <h2>{active.name}</h2>
           <p>{active.description}</p>
           <div className="micro-heading">このモードの確認項目</div>
           <ul>{active.checklist.map(text => <li key={text}>{text}</li>)}</ul>
-          <div className="parameter-card"><span className="overline">CALCULATION STATUS</span><strong>未接続</strong><p>検証済みの地図・PC・候補順位を移植するまでは、データと見せかけた数値を作りません。</p></div>
-          <div className="micro-heading">研究エンジン接続の予定</div>
-          <p className="small-explainer">第2工程で旧研究の固定コードとデータを照合し、再現性を確認したあとに計算機能を有効化します。</p>
           <Link className="action-link panel-link" to="/evidence">科学的な根拠を確認する <span aria-hidden="true">↗</span></Link>
         </aside>
       </div>
@@ -228,7 +184,7 @@ function Evidence() {
     <main id="main-content" className="evidence-page" tabIndex={-1}>
       <p className="overline">RESEARCH INTEGRITY</p>
       <h1>科学的な根拠と、まだ分からないこと。</h1>
-      <p className="evidence-intro">このアプリは、土地被覆の分類、数理モデルの計算、現地の生物学的な証拠を混同しません。研究エンジンの新旧一致は検証済みで、2021年の静的データは検証付きで読み込めます。ただし、地図とシミュレーションの操作画面は次の工程です。</p>
+      <p className="evidence-intro">このアプリは、土地被覆の分類、数理モデルの計算、現地の生物学的な証拠を混同しません。研究エンジンの新旧一致は検証済みで、2021年の静的データは検証付きで読み込めます。探索画面で地図と固定研究条件の計算結果を確認できます。</p>
       <div className="evidence-grid">
         <section className="evidence-tile">
           <span className="overline">01 / SOURCE</span>
