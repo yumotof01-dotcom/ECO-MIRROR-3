@@ -240,7 +240,7 @@ body { background: #eef1e8 url('./glass/observation.webp') center / cover fixed;
 .research-view td { text-align: right; font-variant-numeric: tabular-nums; }
 .map-swatch { width: 10px; height: 10px; display: inline-block; border: 1px solid #668064; margin-right: 6px; }
 .remaining { background: #2f6849; }.removed { background: #c1703e; }.other { background: #e5e6d9; }
-.result-panel { margin-bottom: 20px; padding: 20px; border-radius: 18px; background: #edf3e5 url('./glass/panel.webp') center / 100% 100% no-repeat; }
+.result-panel { margin-bottom: 20px; padding: 22px; border: 12px solid transparent; border-image: url('./glass/panel.webp') 42 fill / 20px stretch; background: #edf3e5; }
 .result-panel h2 { font-size: 18px; margin: 0 0 18px; }
 .result-panel p { font-size: 12px; line-height: 1.8; overflow-wrap: anywhere; }
 .result-panel svg { width: 100%; }

@@ -9,6 +9,7 @@ import type { ScenarioSettings } from './features/landscape/scenarios/engine.ts'
 
 const INITIAL: ScenarioSettings = { pattern: 'distributed', neighbourhood: 4, lambdaMetres: 200, lossPercent: 0 };
 const number = (value: number | null) => value === null ? '取得できません' : value.toLocaleString('ja-JP', { maximumSignificantDigits: 6 });
+const DIAGNOSTICS = { LARGEST_DECLINE_ONLY: '最大低下区間', POTENTIAL_MODEL_ABRUPTNESS: 'モデル上の急低下候補', NO_DECLINE: '低下なし', UNDEFINED_BASELINE: '基準値を定義できません', INCOMPLETE_CURVE: '曲線データが不足' };
 type Mode = 'connectivity' | 'scenario' | 'threshold' | 'bridge';
 
 function ResearchMap({ frame }: { frame: MapFrame }) {
@@ -52,8 +53,8 @@ function Curve({ study, settings }: { study: ResearchStudy; settings: ScenarioSe
       <text x="40" y="205">0%</text><text x="410" y="205">50%</text><text x="40" y="18">PC 最大 {number(max)}</text>
     </svg>}
     <p>最大低下区間 {curve.diagnostic.maxDropFromPercent === null ? '定義できません' : `${curve.diagnostic.maxDropFromPercent}〜${curve.diagnostic.maxDropToPercent}%`}</p>
-    <p>診断 {curve.diagnostic.status} · 非単調性 {curve.diagnostic.nonmonotonic === null ? '判定できません' : curve.diagnostic.nonmonotonic ? 'あり' : 'なし'}</p>
-    {curve.diagnostic.warnings.map(warning => <p key={warning}>{warning}</p>)}
+    <p>診断 {DIAGNOSTICS[curve.diagnostic.status]} · 非単調性 {curve.diagnostic.nonmonotonic === null ? '判定できません' : curve.diagnostic.nonmonotonic ? 'あり' : 'なし'}</p>
+    {curve.diagnostic.warnings.map(warning => <p key={warning}>{warning === 'Largest decrease is a model interval, not proof of an ecological tipping point.' ? '最大低下区間はモデルの診断結果です。現地での生態学的な検証が必要です。' : warning}</p>)}
     <table><caption>同じ規則・近傍・λでの11条件</caption><thead><tr><th>仮想除去率</th><th>構造的PC</th></tr></thead><tbody>
       {curve.points.map(point => <tr key={point.scenarioId}><th>{point.lossPercent}%</th><td>{number(point.pc)}</td></tr>)}
     </tbody></table>
