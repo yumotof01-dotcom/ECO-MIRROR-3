@@ -18,6 +18,12 @@ describe('ECO MIRROR 3 phase-1 application shell', () => {
     expect(screen.queryByText(/生態学的に検証済み/)).not.toBeInTheDocument();
   });
 
+  it('opens the research mode selected on a home card', () => {
+    openRoute('/');
+    fireEvent.click(screen.getByRole('link', { name: /急変区間を調べる/ }));
+    expect(screen.getByRole('tab', { name: /急変区間を調べる/ })).toHaveAttribute('aria-selected', 'true');
+  });
+
   it('supports four functional research-mode tabs, arrow keys, Home and End', () => {
     openRoute('/explore');
     const tabs = screen.getAllByRole('tab');

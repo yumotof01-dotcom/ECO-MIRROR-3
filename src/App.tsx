@@ -1,5 +1,5 @@
 import { useRef, useState, type KeyboardEvent } from 'react';
-import { Link, NavLink, Route, Routes } from 'react-router-dom';
+import { Link, NavLink, Route, Routes, useSearchParams } from 'react-router-dom';
 import { ResearchView } from './ResearchView.tsx';
 import type { RegionId } from './studies/verifiedStudyLoader.ts';
 import { StudyDataAuditPanel } from './studies/StudyDataAuditPanel.tsx';
@@ -96,7 +96,7 @@ function Home() {
       </section>
       <section className="home-overview" aria-label="4つの研究モード">
         {MODES.map(item => (
-          <Link key={item.id} className="overview-card" to="/explore">
+          <Link key={item.id} className="overview-card" to={`/explore?mode=${item.id}`}>
             <span className="overline">{item.number} / {item.en}</span>
             <strong>{item.name}</strong>
             <span className="overview-arrow" aria-hidden="true">↗</span>
@@ -112,7 +112,10 @@ function Home() {
 }
 
 function Explore() {
-  const [mode, setMode] = useState<Mode>('connectivity');
+  const [params, setParams] = useSearchParams();
+  const selectedMode = params.get('mode');
+  const mode: Mode = MODES.some(item => item.id === selectedMode) ? selectedMode as Mode : 'connectivity';
+  const setMode = (value: Mode) => setParams({ mode: value }, { replace: true });
   const [region, setRegion] = useState<RegionId>('shinjuku');
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const active = MODES.find(m => m.id === mode)!;
