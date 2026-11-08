@@ -81,9 +81,9 @@ try {
         await page.getByText('地図の準備ができました。', { exact: true }).waitFor();
         const data = JSON.parse(await readFile(`public/studies/worldcover-2021-v200/regions/${region}/baseline.json`));
         for (const lambda of [40, 60, 90, 135, 200, 300, 450, 675, 1000, 1500]) {
-          await page.getByLabel('仮説λ（m）', { exact: true }).selectOption(String(lambda));
-          await page.getByLabel('近傍', { exact: true }).selectOption('8');
-          await page.getByLabel('除去規則', { exact: true }).selectOption('edge_first');
+          await page.getByLabel('仮説λ（m）').selectOption(String(lambda));
+          await page.getByLabel('近傍').selectOption('8');
+          await page.getByLabel('除去規則').selectOption('edge_first');
           await page.getByLabel('仮想植生減少率', { exact: true }).fill('50');
           await page.getByText('地図の準備ができました。', { exact: true }).waitFor();
           const condition = data.ensemble.conditions.find(row => row.scenarioId === `edge_first-n8-lambda${lambda}-loss50`);
@@ -91,11 +91,11 @@ try {
         }
         await page.getByRole('tab', { name: /自然の橋を比較/ }).click();
         await page.getByText('候補の計算結果を検証しました。', { exact: true }).waitFor();
-        const picker = page.getByLabel('追加候補・参照地点', { exact: true });
+        const picker = page.getByLabel('追加候補・参照地点');
         const candidate = await picker.locator('option').nth(1).getAttribute('value');
         await picker.selectOption(candidate);
         await page.getByText('候補の計算結果を検証しました。', { exact: true }).waitFor();
-        await page.getByLabel('仮説λ（m）', { exact: true }).selectOption('300');
+        await page.getByLabel('仮説λ（m）').selectOption('300');
         await page.getByText('候補の計算結果を検証しました。', { exact: true }).waitFor();
         assert.equal(await picker.inputValue(), candidate, 'Changing conditions must preserve the candidate');
         console.log(`PASS region=${region}: all ten lambda options, 8-neighbour edge-first loss50, candidate persistence`);
