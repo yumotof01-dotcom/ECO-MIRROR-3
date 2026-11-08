@@ -22,7 +22,7 @@ export async function forwardWorldCover(request, fetchTile = (url, options) => f
   try {
     const response = await fetchTile(source + `ESA_WorldCover_10m_2021_v200_${tile}_Map.tif`, {
       headers: { Range: `bytes=${start}-${end}`, 'Accept-Encoding': 'identity' },
-      cache: 'no-store', signal: request.signal, redirect: 'error'
+      cache: 'no-store', signal: request.signal, redirect: 'manual'
     });
     const contentRange = response.headers.get('Content-Range') ?? '';
     const returned = /^bytes (\d+)-(\d+)\/(\d+)$/.exec(contentRange);
@@ -43,9 +43,7 @@ export async function forwardWorldCover(request, fetchTile = (url, options) => f
         'Cache-Control': 'public, max-age=86400'
       }
     });
-  } catch (error) {
-    return new Response(null, {
-      status: 502, headers: { 'X-WorldCover-Error': String(error?.message ?? 'fetch failed').replace(/[^ -~]/g, '').slice(0, 160) }
-    });
+  } catch {
+    return new Response(null, { status: 502 });
   }
 }
