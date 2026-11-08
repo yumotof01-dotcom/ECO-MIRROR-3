@@ -62,8 +62,9 @@ function Curve({ study, settings }: { study: ResearchStudy; settings: ScenarioSe
   </section>;
 }
 
-function Bridge({ study, settings }: { study: ResearchStudy; settings: ScenarioSettings }) {
-  const [siteId, setSiteId] = useState(study.candidates[0]!.site.id);
+function Bridge({ study, settings, siteId, onSelect }: {
+  study: ResearchStudy; settings: ScenarioSettings; siteId: string; onSelect: (siteId: string) => void;
+}) {
   const [result, setResult] = useState<ReturnType<ResearchStudy['intervention']> | null>(null);
   const [status, setStatus] = useState('候補を読み込みます。');
   const [retry, setRetry] = useState(0);
@@ -80,7 +81,7 @@ function Bridge({ study, settings }: { study: ResearchStudy; settings: ScenarioS
     return () => abort.abort();
   }, [study, siteId, settings, retry]);
   return <section className="result-panel"><h2>400m²の仮想追加を調べる</h2>
-    <label>追加候補・参照地点<select value={siteId} onChange={event => { setResult(null); setSiteId(event.target.value); }}>
+    <label>追加候補・参照地点<select value={siteId} onChange={event => { setResult(null); onSelect(event.target.value); }}>
       {study.candidates.map(({ site }) => <option key={site.id} value={site.id}>{site.role === 'hypothetical_connector' ? '候補' : '参照'} · {site.id}</option>)}
     </select></label>
     <p role="status">{status}</p>
@@ -104,6 +105,7 @@ export function ResearchView({ region, mode }: { region: RegionId; mode: Mode })
   const [settings, setSettings] = useState<ScenarioSettings>(INITIAL);
   const [mapRetry, setMapRetry] = useState(0);
   const [saveStatus, setSaveStatus] = useState('');
+  const [selectedSiteId, setSelectedSiteId] = useState<string | null>(null);
   const saveController = useRef<AbortController | null>(null);
   const study = state.status === 'ready' ? state.study : null;
   useEffect(() => () => { session.clear(); maps.clear(); saveController.current?.abort(); }, [session, maps]);
@@ -164,7 +166,7 @@ export function ResearchView({ region, mode }: { region: RegionId; mode: Mode })
           <button className="glass-action" onClick={save}>この条件の結果を保存</button><p role="status">{saveStatus}</p>
         </section>
         {mode === 'threshold' && <Curve study={study} settings={settings} />}
-        {mode === 'bridge' && <Bridge key={conditionId(settings)} study={study} settings={settings} />}
+        {mode === 'bridge' && <Bridge study={study} settings={settings} siteId={selectedSiteId ?? study.candidates[0]!.site.id} onSelect={setSelectedSiteId} />}
         </div></div>}
       <details className="research-provenance"><summary>出典・データ版・研究上の注意</summary>
         <p>ESA WorldCover 2021 v200 · {study.provenance.release.license} · {study.provenance.crs}</p>
