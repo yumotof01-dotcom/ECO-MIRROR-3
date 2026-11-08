@@ -146,8 +146,10 @@ try {
     // Existing product shell, not a newly designed UI: keyboard tabs, evidence loader, responsive overflow.
     await page.goto(origin+'/app/#/explore');await page.getByRole('tablist').waitFor();
     const tabs=page.getByRole('tab');assert.equal(await tabs.count(),4);
-    await tabs.nth(0).focus();await page.keyboard.press('ArrowRight');assert.equal(await tabs.nth(1).getAttribute('aria-selected'),'true');
-    await page.keyboard.press('End');assert.equal(await tabs.nth(3).getAttribute('aria-selected'),'true');
+    await tabs.nth(0).focus();await page.keyboard.press('ArrowRight');
+    await page.locator('#tab-scenario[aria-selected="true"]').waitFor();
+    await page.keyboard.press('End');
+    await page.locator('#tab-bridge[aria-selected="true"]').waitFor();
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'Product shell has horizontal overflow');
     await page.goto(origin+'/app/#/evidence');
     await page.getByRole('button',{name:'選択した地域のデータを検証'}).click();
