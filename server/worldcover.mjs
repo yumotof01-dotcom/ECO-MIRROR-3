@@ -1,7 +1,7 @@
 const tilePattern = /^[NS]\d{2}[EW]\d{3}$/;
 const maxRangeBytes = 8 * 1024 * 1024;
 
-export async function forwardWorldCover(request, fetchTile = fetch) {
+export async function forwardWorldCover(request, fetchTile = (url, options) => fetch(url, options)) {
   const tile = new URL(request.url).searchParams.get('tile') ?? '';
   const match = /^bytes=(\d+)-(\d+)$/.exec(request.headers.get('range') ?? '');
   if (request.method !== 'GET') return new Response(null, { status: 405, headers: { Allow: 'GET' } });
@@ -43,7 +43,9 @@ export async function forwardWorldCover(request, fetchTile = fetch) {
         'Cache-Control': 'public, max-age=86400'
       }
     });
-  } catch {
-    return new Response(null, { status: 502 });
+  } catch (error) {
+    return new Response(null, {
+      status: 502, headers: { 'X-WorldCover-Error': String(error?.message ?? 'fetch failed').replace(/[^ -~]/g, '').slice(0, 160) }
+    });
   }
 }
