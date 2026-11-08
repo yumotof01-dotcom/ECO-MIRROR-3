@@ -21,20 +21,25 @@ export async function forwardWorldCover(request, fetchTile = fetch) {
   const source = 'https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map/';
   try {
     const response = await fetchTile(source + `ESA_WorldCover_10m_2021_v200_${tile}_Map.tif`, {
-      headers: { Range: `bytes=${start}-${end}` }, signal: request.signal, redirect: 'error'
+      headers: { Range: `bytes=${start}-${end}`, 'Accept-Encoding': 'identity' },
+      cache: 'no-store', signal: request.signal, redirect: 'error'
     });
     const contentRange = response.headers.get('Content-Range') ?? '';
     const returned = /^bytes (\d+)-(\d+)\/(\d+)$/.exec(contentRange);
     if (response.status !== 206 || !returned || Number(returned[1]) !== start ||
         Number(returned[2]) !== Math.min(end, Number(returned[3]) - 1)) {
       await response.body?.cancel();
-      return new Response(null, { status: response.status === 404 ? 404 : 502 });
+      return new Response(null, {
+        status: response.status === 404 ? 404 : 502,
+        headers: { 'X-WorldCover-Upstream-Status': String(response.status) }
+      });
     }
     return new Response(response.body, {
       status: 206,
       headers: {
         'Content-Type': 'image/tiff',
         'Content-Range': contentRange,
+        'Content-Length': String(Number(returned[2]) - start + 1),
         'Cache-Control': 'public, max-age=86400'
       }
     });
