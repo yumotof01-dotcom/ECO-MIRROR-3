@@ -3,6 +3,7 @@ import { createServer } from 'node:http';
 import { readFile, mkdir } from 'node:fs/promises';
 import { resolve, extname } from 'node:path';
 import { chromium } from 'playwright';
+import { writeArrayBuffer } from 'geotiff';
 
 const root = resolve('dist');
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webp': 'image/webp' };
@@ -100,6 +101,40 @@ try {
         assert.equal(await picker.inputValue(), candidate, 'Changing conditions must preserve the candidate');
         console.log(`PASS region=${region}: all ten lambda options, 8-neighbour edge-first loss50, candidate persistence`);
       }
+    }
+    // Synthetic TIFF isolates the map-click, worker and download path from public servers.
+    if (width === 375 || width === 1366) {
+      const tiff = Buffer.from(writeArrayBuffer(new Uint8Array(400 * 400).fill(10), {
+        width: 400, height: 400, BitsPerSample: [8], SamplesPerPixel: 1, SampleFormat: [1],
+        PhotometricInterpretation: 1, ModelPixelScale: [1 / 12000, 1 / 12000, 0],
+        ModelTiepoint: [0, 0, 0, 139.58, 35.755, 0], GeographicTypeGeoKey: 4326,
+        GTModelTypeGeoKey: 2, GTRasterTypeGeoKey: 1
+      }));
+      await page.route('https://tile.openstreetmap.org/**', route => route.abort());
+      await page.route('**/api/worldcover?tile=*', async route => {
+        assert.equal(new URL(route.request().url()).searchParams.get('tile'), 'N33E138');
+        const [, first, last] = /^bytes=(\d+)-(\d+)$/.exec(route.request().headers().range);
+        const start = Number(first);
+        const end = Math.min(Number(last), tiff.length - 1);
+        await route.fulfill({ status: 206, headers: {
+          'content-type': 'image/tiff', 'content-range': `bytes ${start}-${end}/${tiff.length}`
+        }, body: tiff.subarray(start, end + 1) });
+      });
+      await page.getByRole('link', { name: '地図から調べる', exact: true }).click();
+      await page.getByLabel('解析地点を選ぶ世界地図').click();
+      await page.getByRole('button', { name: '440条件を計算する' }).click();
+      await page.getByText('440条件の計算が完了しました。', { exact: true }).waitFor();
+      assert.equal(await page.locator('.point-metrics dd').first().innerText(), '1.00000');
+      await page.getByLabel('仮想除去率').selectOption('50');
+      assert.ok(Number(await page.locator('.point-metrics dd').first().innerText()) < 1);
+      const savedPoint = page.waitForEvent('download');
+      await page.getByRole('button', { name: '出典付きJSONを保存' }).click();
+      const report = JSON.parse(await readFile(await (await savedPoint).path(), 'utf8'));
+      assert.equal(report.conditions.length, 440);
+      assert.ok(Math.abs(report.point.lat - 35.738) < 0.001);
+      assert.ok(Math.abs(report.point.lon - 139.599) < 0.001);
+      assert.equal(report.missingCells, 0);
+      console.log(`PASS width=${width}: map click, GeoTIFF range read, worker computation, 440 conditions and JSON`);
     }
     assert.deepEqual(errors, []);
     console.log(`PASS width=${width}: image layout, keyboard tabs, verified map/PC, curve, candidate, export, region reset, network recovery`);

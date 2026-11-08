@@ -1,8 +1,10 @@
-import { useRef, useState, type KeyboardEvent } from 'react';
+import { lazy, Suspense, useRef, useState, type KeyboardEvent } from 'react';
 import { Link, NavLink, Route, Routes, useSearchParams } from 'react-router-dom';
 import { ResearchView } from './ResearchView.tsx';
 import type { RegionId } from './studies/verifiedStudyLoader.ts';
 import { StudyDataAuditPanel } from './studies/StudyDataAuditPanel.tsx';
+
+const PointStudy = lazy(() => import('./point/PointStudy.tsx'));
 
 type Mode = 'connectivity' | 'scenario' | 'threshold' | 'bridge';
 const REGIONS = [
@@ -66,6 +68,7 @@ function Shell() {
         </header>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/point" element={<Suspense fallback={<p role="status">地図を読み込み中…</p>}><PointStudy /></Suspense>} />
           <Route path="/explore" element={<Explore />} />
           <Route path="/evidence" element={<Evidence />} />
           <Route path="*" element={<NotFound />} />
@@ -143,6 +146,7 @@ function Explore() {
             {REGIONS.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
           </select>
         </div>
+        <Link className="point-entry" to="/point">地図から調べる</Link>
         <div className="source-status" aria-label="2021年の土地被覆データ">
           <span className="yellow-dot" aria-hidden="true" />
           <div><strong>2021 · LAND COVER</strong><span>6地域 · 固定研究条件</span></div>

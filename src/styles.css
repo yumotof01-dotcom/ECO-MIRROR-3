@@ -274,3 +274,30 @@ body { background: #eef1e8 url('./glass/observation.webp') center / cover fixed;
 @media (forced-colors: active) {
   .research-view button, .research-view select, .result-panel { background-image: none; }
 }
+
+.point-entry { font-weight: 700; text-underline-offset: 4px; }
+.point-study {
+  width: min(100%, 1120px); margin: 0 auto; padding: clamp(16px, 3vw, 36px);
+  background: #fafbf7; border: 1px solid #c7d2c3; border-radius: 16px;
+}
+.point-study h1 { margin: 16px 0 8px; }
+.point-picker-map { height: clamp(290px, 55vh, 540px); isolation: isolate; border: 1px solid #a3b5a3; border-radius: 10px; background: #e8eee5; }
+.point-study summary { cursor: pointer; padding: 12px 0; }
+.point-actions, .point-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+.point-study button, .point-study input, .point-study select {
+  min-height: 44px; border: 1px solid #829688; border-radius: 7px;
+  padding: 8px 12px; background: #fff; color: #213e32;
+}
+.point-actions button:first-child { background: #265a43; color: white; }
+.point-study button:focus-visible, .point-study input:focus-visible, .point-study select:focus-visible { outline: 3px solid #21668a; outline-offset: 2px; }
+.point-study button:disabled { opacity: .55; }
+.point-controls label { display: grid; gap: 5px; }
+.point-controls input { width: 10rem; max-width: 100%; }
+.point-results { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; margin: 18px 0; }
+.point-landcover { margin: 0; }
+.point-landcover canvas { width: 100%; max-width: 420px; height: auto; image-rendering: pixelated; }
+.point-swatch { display: inline-block; width: 11px; height: 11px; margin-right: 8px; }
+.point-metrics { display: flex; flex-wrap: wrap; gap: 18px; }
+.point-metrics dd { margin: 4px 0; font-size: 1.3rem; font-weight: 700; }
+.point-source { font-size: .85rem; color: #455c50; }
+@media (max-width: 700px) { .point-results { grid-template-columns: 1fr; } }
