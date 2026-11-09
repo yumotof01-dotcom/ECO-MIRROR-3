@@ -293,11 +293,32 @@ body { background: #eef1e8 url('./glass/observation.webp') center / cover fixed;
 .point-study button:disabled { opacity: .55; }
 .point-controls label { display: grid; gap: 5px; }
 .point-controls input { width: 10rem; max-width: 100%; }
-.point-results { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; margin: 18px 0; }
+.point-results { margin: 18px 0; scroll-margin-top: 12px; }
 .point-landcover { margin: 0; }
 .point-landcover canvas { width: 100%; max-width: 420px; height: auto; image-rendering: pixelated; }
 .point-swatch { display: inline-block; width: 11px; height: 11px; margin-right: 8px; }
-.point-metrics { display: flex; flex-wrap: wrap; gap: 18px; }
-.point-metrics dd { margin: 4px 0; font-size: 1.3rem; font-weight: 700; }
 .point-source { font-size: .85rem; color: #455c50; }
-@media (max-width: 700px) { .point-results { grid-template-columns: 1fr; } }
+
+.point-map-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 14px 0 8px; }
+.point-map-tools span { font-size: .9rem; }
+.point-current-key { color: #125fb2; }
+.point-selection-key { color: #9e4219; }
+.point-picker-map .leaflet-tile-pane { filter: saturate(.48) contrast(.94) brightness(1.04); }
+.point-picker-map .leaflet-tooltip { font-size: 13px; font-weight: 700; }
+.point-result-heading h2 { margin-bottom: 6px; }
+.point-summary { padding: 14px 16px; background: #edf3e9; border-left: 4px solid #326647; }
+.point-scenario { margin: 18px 0; }
+.point-scenario label { display: inline-flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.point-cover-pair { display: flex; flex-wrap: wrap; gap: 16px; align-items: start; }
+.point-cover-pair figure { flex: 1 1 220px; max-width: 420px; }
+.point-cover-pair canvas { display: block; margin-top: 6px; border: 1px solid #bbc8bb; }
+.point-removed { background: #a13919; }
+.point-numbers table { width: 100%; margin-top: 20px; border-collapse: collapse; text-align: left; }
+.point-numbers caption { text-align: left; font-weight: 700; padding-bottom: 8px; }
+.point-numbers th, .point-numbers td { padding: 8px; border-bottom: 1px solid #ccd7ca; }
+.point-numbers thead { background: #edf3e9; }
+@media (max-width: 500px) {
+  .point-cover-pair figure { flex-basis: 135px; min-width: 0; }
+  .point-cover-pair { gap: 8px; }
+  .point-numbers th, .point-numbers td { padding: 6px 4px; font-size: .85rem; }
+}

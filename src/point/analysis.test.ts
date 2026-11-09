@@ -24,7 +24,12 @@ it('matches the existing PC model for every condition and refuses missing cells'
     cells: ['vegetation', 'other', 'vegetation', 'other', 'vegetation', 'other', 'vegetation', 'other', 'other']
   };
   const expected = runExhaustiveScenarios(grid).conditions;
-  const actual = allConditions(grid, () => {});
+  const masks = new Map<string, Uint8Array>();
+  const actual = allConditions(grid, () => {}, (key, mask) => masks.set(key, mask));
+  const removed = masks.get('distributed-50')!;
+  const scenario = actual.find(row => row.pattern === 'distributed' && row.lossPercent === 50)!;
+  expect(removed.reduce((sum, cell) => sum + cell, 0) * 100).toBe(400 - scenario.area);
+  expect(removed.every((cell, index) => !cell || grid.cells[index] === 'vegetation')).toBe(true);
   expect(actual).toHaveLength(440);
   for (let index = 0; index < expected.length; index++) expect(actual[index]!.pc).toBeCloseTo(expected[index]!.pc!, 14);
   const baseline = assessLandscape(grid, 4, 200);

@@ -21,7 +21,7 @@ let browser;
 try {
   browser = await chromium.launch({ headless: true });
   for (const width of [375, 820, 1366]) {
-    const page = await browser.newPage({ viewport: { width, height: 1000 }, reducedMotion: 'reduce' });
+    const page = await browser.newPage({ viewport: { width, height: 1000 }, reducedMotion: 'reduce', geolocation: { latitude: 35.738, longitude: 139.599 }, permissions: ['geolocation'] });
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(origin);
@@ -121,14 +121,22 @@ try {
         }, body: tiff.subarray(start, end + 1) });
       });
       await page.getByRole('link', { name: '地図から調べる', exact: true }).click();
+      await page.getByRole('button', { name: '現在地を表示' }).click();
+      await page.getByText(/青い丸が現在地/).waitFor();
       await page.getByLabel('解析地点を選ぶ世界地図').click();
-      await page.getByRole('button', { name: '440条件を計算する' }).click();
+      await page.getByRole('button', { name: '緑地を調べる' }).click();
+      await page.getByRole('button', { name: '緑地が減った場合を試す' }).click();
       await page.getByText('440条件の計算が完了しました。', { exact: true }).waitFor();
-      assert.equal(await page.locator('.point-metrics dd').first().innerText(), '1.00000');
-      await page.getByLabel('仮想除去率').selectOption('50');
-      assert.ok(Number(await page.locator('.point-metrics dd').first().innerText()) < 1);
+      const currentPc = page.locator('.point-numbers tbody tr').nth(2).locator('td').nth(1);
+      assert.equal(await currentPc.innerText(), '1.00000');
+      await page.getByLabel('植生が減る割合').selectOption('50');
+      await page.getByText('植生が減った場合の地図', { exact: true }).waitFor();
+      assert.ok(parseFloat(await currentPc.innerText()) < 1);
+      assert.equal(await page.locator('.point-cover-pair canvas').count(), 2);
+      await page.locator('.point-picker-map').click({ position: { x: 110, y: 110 } });
+      await page.getByRole('heading', { name: '前に調べた範囲の結果' }).waitFor();
       const savedPoint = page.waitForEvent('download');
-      await page.getByRole('button', { name: '出典付きJSONを保存' }).click();
+      await page.getByRole('button', { name: '結果と出典を保存（JSON）' }).click();
       const report = JSON.parse(await readFile(await (await savedPoint).path(), 'utf8'));
       assert.equal(report.conditions.length, 440);
       assert.ok(Math.abs(report.point.lat - 35.738) < 0.001);

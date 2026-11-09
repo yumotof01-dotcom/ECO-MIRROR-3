@@ -30,9 +30,15 @@ export function baselineFor(grid: LandscapeGrid): PointResult {
   return { ...BASELINE, pc: result.values[0]!, area: result.area, patches: result.patches };
 }
 
-export function allConditions(grid: LandscapeGrid, report: (done: number) => void): PointResult[] {
+export function allConditions(grid: LandscapeGrid, report: (done: number) => void, onMask?: (key: string, mask: Uint8Array) => void): PointResult[] {
   // Rank removals once using the same rules as the fixed research data.
   const grids = buildScenarioGridCache(grid);
+  if (onMask) {
+    for (const [key, scenario] of grids) {
+      if (key.endsWith('-0')) continue;
+      onMask(key, Uint8Array.from(scenario.cells, (cell, index) => Number(cell === 'other' && grid.cells[index] === 'vegetation')));
+    }
+  }
   const results: PointResult[] = [];
   const measurements = new Map<string, ReturnType<typeof measure>>();
   for (const condition of CONDITIONS) {
