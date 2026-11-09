@@ -87,3 +87,13 @@ npm run research:build
 ## 多面的な1,000ケース検証
 
 `npm run research:stress1000`で9分類・1,000の異なるケースを実行する。初回の988成功/12失敗から、配列とオブジェクトの比較不具合1件を最小修正し、再実行で1,000成功。ケース別台帳と対象ソースfingerprintを保持する。[検証内容と結果](docs/26-stress-1000-audit.md)。物理実機の検証回数とは区別する。
+
+### Google マップ（任意）
+
+背景の確認用に Maps Embed API を利用できます。Google Cloud で Maps Embed API のみを有効化し、API キーはウェブサイトの HTTP リファラーと Maps Embed API に制限してください。公開プレビューと本番を使う場合は、利用するホストを個別に許可します。
+
+Cloudflare Pages のビルド環境変数 `VITE_GOOGLE_MAPS_EMBED_KEY` にキーを設定して再ビルドすると、Google マップと航空写真を表示できます。解析地点の指定は「解析地点を選ぶ」で行います。キー未設定時は通常の地点選択画面と「Google マップで開く」を表示します。Google Cloud の設定画面で請求先の有効化を求められる場合があります。利用料金のかかる Maps JavaScript API や Places API はこの機能から呼び出しません。
+
+公式資料
+- https://developers.google.com/maps/documentation/embed/usage-and-billing
+- https://developers.google.com/maps/documentation/embed/embedding-map

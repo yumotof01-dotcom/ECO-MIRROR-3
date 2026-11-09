@@ -3,7 +3,38 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { HALF, localProjection, wrapLongitude, type Point } from './geometry.ts';
 
+const embedKey = import.meta.env.VITE_GOOGLE_MAPS_EMBED_KEY?.trim();
+
 export function PointMap({ point, onPick }: { point: Point | null; onPick: (point: Point) => void }) {
+  const [google, setGoogle] = useState(Boolean(embedKey));
+  const [satellite, setSatellite] = useState(true);
+  const center = point ?? { lat: 35.738, lon: 139.599 };
+  const coordinates = `${center.lat},${center.lon}`;
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(coordinates)}`;
+  const parameters = embedKey ? new URLSearchParams({
+    key: embedKey, q: coordinates, zoom: point ? '16' : '12', maptype: satellite ? 'satellite' : 'roadmap',
+    language: 'ja'
+  }) : null;
+
+  return <>
+    <div className="point-map-tools">
+      {embedKey && <>
+        <button type="button" aria-pressed={google} onClick={() => setGoogle(true)}>Google マップ</button>
+        <button type="button" aria-pressed={!google} onClick={() => setGoogle(false)}>解析地点を選ぶ</button>
+      </>}
+      <a href={mapsUrl} target="_blank" rel="noopener noreferrer">Google マップで開く</a>
+    </div>
+    {google && parameters ? <>
+      <p>Google マップで周辺を確認できます。調査地点を指定するときは「解析地点を選ぶ」を押してください。</p>
+      <button type="button" aria-pressed={satellite} onClick={() => setSatellite(!satellite)}>航空写真</button>
+      <iframe className="point-picker-map point-google-embed" title="Google マップで調査範囲の周辺を見る"
+        referrerPolicy="strict-origin-when-cross-origin" allowFullScreen
+        src={`https://www.google.com/maps/embed/v1/place?${parameters}`} />
+    </> : <SelectionMap point={point} onPick={onPick} />}
+  </>;
+}
+
+function SelectionMap({ point, onPick }: { point: Point | null; onPick: (point: Point) => void }) {
   const host = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
   const selection = useRef<L.LayerGroup | null>(null);
