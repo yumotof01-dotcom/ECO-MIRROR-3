@@ -44,8 +44,9 @@ export default function CityLab({ city, reference, onReference }: {
 }) {
   const [plans, setPlans] = useState<[number[], number[]]>([[], []]);
   const [active, setActive] = useState<0 | 1>(0);
+  const [view, setView] = useState({ x: 0, y: 0, size: SIZE });
   const [cursor, setCursor] = useState(100 * SIZE + 100);
-  const [mode, setMode] = useState<'park' | 'note'>('park');
+  const [mode, setMode] = useState<'park' | 'note' | 'focus'>('park');
   const [gapMode, setGapMode] = useState(false);
   const [result, setResult] = useState<{ values: PointResult[]; gaps: Int16Array | null } | null>(null);
   const [status, setStatus] = useState('建造物や裸地のマスに、20m×20mの緑地を置けます。');
@@ -72,8 +73,28 @@ export default function CityLab({ city, reference, onReference }: {
   }, [city.classes, plans, gapMode]);
 
   useEffect(() => {
-    if (map.current) paint(map.current, city.classes, plans[active], gapMode ? result?.gaps : null);
-  }, [active, city.classes, gapMode, plans, result]);
+    const canvas = map.current;
+    const context = canvas?.getContext('2d');
+    if (!context || !canvas) return;
+    const raster = document.createElement('canvas');
+    raster.width = SIZE;
+    raster.height = SIZE;
+    paint(raster, city.classes, plans[active], gapMode ? result?.gaps : null);
+    context.imageSmoothingEnabled = false;
+    context.drawImage(raster, view.x, view.y, view.size, view.size, 0, 0, canvas.width, canvas.height);
+  }, [active, city.classes, gapMode, plans, result, view]);
+
+  function focusView(size: number, index: number) {
+    const clamp = (value: number) => Math.max(0, Math.min(SIZE - size, value));
+    setView({ size, x: clamp(index % SIZE - size / 2), y: clamp(Math.floor(index / SIZE) - size / 2) });
+  }
+
+  function overlayPosition(index: number) {
+    const x = index % SIZE - view.x;
+    const y = Math.floor(index / SIZE) - view.y;
+    return { left: `${(x + .5) / view.size * 100}%`, top: `${(y + .5) / view.size * 100}%`,
+      visibility: x >= 0 && y >= 0 && x < view.size && y < view.size ? 'visible' as const : 'hidden' as const };
+  }
 
   function changePlan(next: number[]) {
     setResult(null);
@@ -82,6 +103,7 @@ export default function CityLab({ city, reference, onReference }: {
 
   function place(index: number) {
     setCursor(index);
+    if (mode === 'focus') { focusView(view.size, index); return; }
     if (mode === 'note') { setStatus('観察する場所を選びました。下にメモを入力してください。'); return; }
     const existing = plans[active].find(start => footprint(start).includes(index));
     if (existing !== undefined) { changePlan(plans[active].filter(start => start !== existing)); return; }
@@ -173,14 +195,21 @@ export default function CityLab({ city, reference, onReference }: {
       }} /> 緑地から離れた場所を表示</label>
     </div>
     <p>この案の残り予算 <strong>{(PARK_BUDGET - plans[active].length) * 400}㎡</strong> ／ 1,200㎡</p>
+    <div className="point-actions" aria-label="配置地図の拡大">
+      {[200, 100, 50, 20].map(size => <button key={size} type="button" aria-pressed={view.size === size}
+        onClick={() => focusView(size, cursor)}>{size === SIZE ? '全体' : `${SIZE / size}倍`}</button>)}
+      <button type="button" aria-pressed={mode === 'focus'} onClick={() => setMode(mode === 'focus' ? 'park' : 'focus')}>見る場所を移動</button>
+      <span>表示範囲 {view.size * 10}m四方</span>
+    </div>
+    <p>「見る場所を移動」を選んで地図を押すと、その場所を中心に表示できます。</p>
     <div className="city-map-wrap">
       <canvas ref={map} width={SIZE} height={SIZE} tabIndex={0} role="button"
-        aria-label={mode === 'park' ? '配置地図。矢印キーで位置を選び、Enterで緑地を追加または削除' : '観察地図。矢印キーで位置を選び、Enterで観察地点を選択'}
+        aria-label={mode === 'park' ? '配置地図。矢印キーで位置を選び、Enterで緑地を追加または削除' : mode === 'note' ? '観察地図。矢印キーで位置を選び、Enterで観察地点を選択' : '地図の中心を選択。矢印キーで移動し、Enterで中心を変更'}
         onClick={event => {
           const rect = event.currentTarget.getBoundingClientRect();
-          const x = Math.max(0, Math.min(SIZE - 1, Math.floor((event.clientX - rect.left) / rect.width * SIZE)));
-          const y = Math.max(0, Math.min(SIZE - 1, Math.floor((event.clientY - rect.top) / rect.height * SIZE)));
-          place(y * SIZE + x);
+          const x = Math.max(0, Math.min(view.size - 1, Math.floor((event.clientX - rect.left) / rect.width * view.size)));
+          const y = Math.max(0, Math.min(view.size - 1, Math.floor((event.clientY - rect.top) / rect.height * view.size)));
+          place((view.y + y) * SIZE + view.x + x);
         }}
         onKeyDown={event => {
           const moves: Record<string, number> = { ArrowUp: -SIZE, ArrowDown: SIZE, ArrowLeft: -1, ArrowRight: 1 };
@@ -190,10 +219,11 @@ export default function CityLab({ city, reference, onReference }: {
             const step = event.shiftKey ? 10 : 1;
             const next = Math.max(0, Math.min(SIZE * SIZE - 1, cursor + moves[event.key]! * step));
             setCursor(next);
+            if (overlayPosition(next).visibility === 'hidden') focusView(view.size, next);
           }
         }} />
-      <span className="city-crosshair" style={{ left: `${(cursor % SIZE + .5) / SIZE * 100}%`, top: `${(Math.floor(cursor / SIZE) + .5) / SIZE * 100}%` }} aria-hidden="true">+</span>
-      {notes.map((entry, i) => <span key={i} className="city-pin" style={{ left: `${(entry.index % SIZE + .5) / SIZE * 100}%`, top: `${(Math.floor(entry.index / SIZE) + .5) / SIZE * 100}%` }} aria-hidden="true">{i + 1}</span>)}
+      <span className="city-crosshair" style={overlayPosition(cursor)} aria-hidden="true">+</span>
+      {notes.map((entry, i) => <span key={i} className="city-pin" style={overlayPosition(entry.index)} aria-hidden="true">{i + 1}</span>)}
     </div>
     <p>青＝追加した緑地。地図で押すと配置、青い場所を押すと取り消し。</p>
     {gapMode && <p>橙＝元の植生から150m以上、赤茶＝300m以上。縦横に移動する格子上の距離です。植生がない範囲は赤茶で表示します。</p>}

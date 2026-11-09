@@ -146,7 +146,9 @@ try {
       assert.equal(report.missingCells, 0);
       await page.getByRole('button', { name: '街づくり実験室', exact: true }).click();
       const designMap = page.getByRole('button', { name: /配置地図/ });
-      await designMap.press('Enter');
+      await page.getByRole('button', { name: '10倍', exact: true }).click();
+      await page.getByText('表示範囲 200m四方', { exact: true }).waitFor();
+      await designMap.click();
       await page.getByText('400㎡の緑地を追加しました。').waitFor();
       await page.getByRole('button', { name: '案 B', exact: true }).click();
       await designMap.press('Shift+ArrowRight');
