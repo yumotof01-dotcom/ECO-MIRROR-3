@@ -104,7 +104,9 @@ try {
     }
     // Synthetic TIFF isolates the map-click, worker and download path from public servers.
     if (width === 375 || width === 1366) {
-      const tiff = Buffer.from(writeArrayBuffer(new Uint8Array(400 * 400).fill(10), {
+      const sample = new Uint8Array(400 * 400).fill(10);
+      for (let row = 193; row < 221; row++) sample.fill(50, row * 400 + 213, row * 400 + 244);
+      const tiff = Buffer.from(writeArrayBuffer(sample, {
         width: 400, height: 400, BitsPerSample: [8], SamplesPerPixel: 1, SampleFormat: [1],
         PhotometricInterpretation: 1, ModelPixelScale: [1 / 12000, 1 / 12000, 0],
         ModelTiepoint: [0, 0, 0, 139.58, 35.755, 0], GeographicTypeGeoKey: 4326,
@@ -128,7 +130,7 @@ try {
       await page.getByRole('button', { name: '緑地が減った場合を試す' }).click();
       await page.getByText('440条件の計算が完了しました。', { exact: true }).waitFor();
       const currentPc = page.locator('.point-numbers tbody tr').nth(2).locator('td').nth(1);
-      assert.equal(await currentPc.innerText(), '1.00000');
+      assert.ok(parseFloat(await currentPc.innerText()) > .9);
       await page.getByLabel('植生が減る割合').selectOption('50');
       await page.getByText('植生が減った場合の地図', { exact: true }).waitFor();
       assert.ok(parseFloat(await currentPc.innerText()) < 1);
@@ -142,6 +144,25 @@ try {
       assert.ok(Math.abs(report.point.lat - 35.738) < 0.001);
       assert.ok(Math.abs(report.point.lon - 139.599) < 0.001);
       assert.equal(report.missingCells, 0);
+      await page.getByRole('button', { name: '街づくり実験室', exact: true }).click();
+      const designMap = page.getByRole('button', { name: /配置地図/ });
+      await designMap.press('Enter');
+      await page.getByText('400㎡の緑地を追加しました。').waitFor();
+      await page.getByRole('button', { name: '案 B', exact: true }).click();
+      await designMap.press('Shift+ArrowRight');
+      await designMap.press('Enter');
+      await page.getByRole('checkbox', { name: '緑地から離れた場所を表示' }).check();
+      await page.getByText(/縦横に移動する格子上の距離/).waitFor();
+      await page.getByRole('button', { name: '観察ピン', exact: true }).click();
+      await page.getByLabel('選んだ地点の観察メモ').fill('公園のそば');
+      await page.getByRole('button', { name: 'ピンを記録' }).click();
+      await page.getByText('公園のそば', { exact: false }).last().waitFor();
+      await page.getByRole('button', { name: 'この街を比較用に残す' }).click();
+      await page.getByText(/別の場所を地図で選び/).waitFor();
+      const savedImage = page.waitForEvent('download');
+      await page.getByRole('button', { name: '比較画像を保存' }).click();
+      const png = await readFile(await (await savedImage).path());
+      assert.equal(png.subarray(1, 4).toString(), 'PNG');
       console.log(`PASS width=${width}: map click, GeoTIFF range read, worker computation, 440 conditions and JSON`);
     }
     assert.deepEqual(errors, []);

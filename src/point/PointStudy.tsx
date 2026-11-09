@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { PointMap } from './PointMap.tsx';
+import CityLab, { type CitySnapshot } from './CityLab.tsx';
 import { SIZE, type Point } from './geometry.ts';
 import { BASELINE, type PointResult } from './analysis.ts';
 import type { PointMessage, PointRequest } from './point.worker.ts';
@@ -43,6 +44,8 @@ function LandCover({ crop, removed, title }: { crop: Crop; removed?: Uint8Array;
 }
 
 export default function PointStudy() {
+  const [reference, setReference] = useState<CitySnapshot | null>(null);
+  const [labOpen, setLabOpen] = useState(false);
   const [point, setPoint] = useState<Point | null>(null);
   const [coordinates, setCoordinates] = useState({ lat: '', lon: '' });
   const [status, setStatus] = useState('地図を押して、調べる範囲の中心を選んでください。');
@@ -82,6 +85,7 @@ export default function PointStudy() {
     stop();
     setBusy(true); setCrop(null); setBaseline(null); setResults([]); setMasks({}); setCondition(BASELINE);
     setResultPoint(point);
+    setLabOpen(false);
     setStatus('選んだ範囲の土地被覆データを取得中…');
     const task = new Worker(new URL('./point.worker.ts', import.meta.url), { type: 'module' });
     worker.current = task;
@@ -210,6 +214,10 @@ export default function PointStudy() {
         <p>PCは、緑地が広いほど、また互いに近いほど大きくなるモデル上の指標です。</p>
         <button type="button" onClick={save}>結果と出典を保存（JSON）</button>
       </div>}
+      {baseline && resultPoint && <><button type="button" aria-expanded={labOpen} onClick={() => setLabOpen(!labOpen)}>街づくり実験室</button>
+        {labOpen && <CityLab key={`${resultPoint.lat},${resultPoint.lon}`} city={{ point: resultPoint, classes: crop.classes,
+          baseline, sha256: crop.sha256, tiles: crop.tiles, crs: crop.crs }} reference={reference} onReference={setReference} />}
+      </>}
     </section>}
     <p className="point-source">土地被覆は2021年時点の分類です。PCは緑地の面積と重心間距離を用いた構造モデルの指標です。</p>
     <p className="point-source">© ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA WorldCover consortium. <a href="https://doi.org/10.5281/zenodo.7254221">出典・CC BY 4.0</a></p>

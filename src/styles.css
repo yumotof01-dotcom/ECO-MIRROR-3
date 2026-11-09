@@ -322,3 +322,17 @@ body { background: #eef1e8 url('./glass/observation.webp') center / cover fixed;
   .point-cover-pair { gap: 8px; }
   .point-numbers th, .point-numbers td { padding: 6px 4px; font-size: .85rem; }
 }
+
+.city-lab { margin-top: 20px; border-top: 2px solid #cad7c7; padding-top: 16px; }
+.city-lab .point-actions { margin: 12px 0; align-items: center; }
+.city-lab input[type="checkbox"] { min-height: auto; }
+.city-lab button[aria-pressed="true"] { outline: 2px solid #265a43; outline-offset: 2px; }
+.city-map-wrap { width: min(100%, 620px); position: relative; }
+.city-map-wrap canvas, .city-places canvas { width: 100%; display: block; image-rendering: pixelated; }
+.city-crosshair, .city-pin { position: absolute; pointer-events: none; transform: translate(-50%, -50%); }
+.city-crosshair { color: #111; font-weight: 900; text-shadow: 0 0 2px white, 0 0 3px white; }
+.city-pin { border-radius: 50%; color: white; background: #593778; font-size: 11px; padding: 1px 5px; }
+.city-compare { width: 100%; margin: 16px 0; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.city-compare th, .city-compare td { padding: 6px; border-bottom: 1px solid #ccd7ca; text-align: left; }
+.city-places { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+.city-places figure { margin: 0; min-width: 0; font-size: .9rem; }
