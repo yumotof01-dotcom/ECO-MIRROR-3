@@ -8,14 +8,20 @@ function openRoute(path: string) {
 }
 
 describe('ECO MIRROR 3 phase-1 application shell', () => {
-  it('navigates from home to the explorer without pretending science is connected', () => {
+  it('navigates to the research workspace and requests data explicitly', () => {
     openRoute('/');
     expect(screen.getByRole('heading', { level: 1, name: /自然のつながりを/ })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('link', { name: /研究ワークスペースへ/ }));
     expect(screen.getByRole('tablist', { name: /研究モード/ })).toBeInTheDocument();
-    expect(screen.getByText('研究データは、まだ接続していません。')).toBeInTheDocument();
-    expect(screen.getByText(/概念図 · 実在の地図ではありません/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '地域データを読み込む' })).toBeInTheDocument();
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
     expect(screen.queryByText(/生態学的に検証済み/)).not.toBeInTheDocument();
+  });
+
+  it('opens the research mode selected on a home card', () => {
+    openRoute('/');
+    fireEvent.click(screen.getByRole('link', { name: /急変区間を調べる/ }));
+    expect(screen.getByRole('tab', { name: /急変区間を調べる/ })).toHaveAttribute('aria-selected', 'true');
   });
 
   it('supports four functional research-mode tabs, arrow keys, Home and End', () => {
@@ -47,10 +53,10 @@ describe('ECO MIRROR 3 phase-1 application shell', () => {
 
   it('changes regions without silently reusing a numerical result', () => {
     openRoute('/explore');
-    fireEvent.change(screen.getByLabelText('研究地域（地図は未接続）'), { target: { value: 'odaiba' } });
-    expect(screen.getByText('東京・お台場周辺', { selector: '.region-name' })).toBeInTheDocument();
-    expect(screen.getByText('研究データは、まだ接続していません。')).toBeInTheDocument();
-    expect(screen.getByText(/計算値は表示しません/)).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('研究地域'), { target: { value: 'odaiba' } });
+    expect(screen.getByLabelText('研究地域')).toHaveValue('odaiba');
+    expect(screen.getByRole('button', { name: '地域データを読み込む' })).toBeInTheDocument();
+    expect(screen.queryByText('構造的PC')).not.toBeInTheDocument();
     expect(screen.queryByText(/PC =/)).not.toBeInTheDocument();
   });
 
